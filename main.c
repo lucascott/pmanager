@@ -41,12 +41,13 @@ int main()
 }
 
 void esegui(char * words[MAX_ARGS], int arg_counter) {
-    if (arg_counter == 1 && strcmp(words[0],"phelp"))
-        printf("Comandi disponibili:\nphelp​ : stampa un elenco dei comandi disponibili\nplist​ : elenca i processi generati dalla shell custom\npnew <nome>​ : crea un nuovo processo con nome <nome>\npinfo <nome>​ : fornisce informazioni sul processo <nome> (almeno ​ pid ​ e ​ ppid ​ )\npclose <nome>​ : chiede al processo <nome> di chiudersi\nquit​ : esce dalla shell custom\n");
-    /*
+    printf("%s\n", words[0]);
+    if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
+        printf("\nComandi disponibili:\nphelp​ : stampa un elenco dei comandi disponibili\nplist​ : elenca i processi generati dalla shell custom\npnew <nome>​ : crea un nuovo processo con nome <nome>\npinfo <nome>​ : fornisce informazioni sul processo <nome> (almeno ​ pid ​ e ​ ppid ​ )\npclose <nome>​ : chiede al processo <nome> di chiudersi\nquit​ : esce dalla shell custom\n\n");
+    }/*
     else if (strcmp("phelp",primo) == 0 && arg_counter > 1)
         printf("Sei mona, come delsi\n");
     */
-    else if (arg_counter == 1 && strcmp(words[0],"quit"))
+    else if (arg_counter == 1 && strcmp(words[0],"quit") == 0)
         exit(0);
 }
