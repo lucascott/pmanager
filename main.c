@@ -19,14 +19,35 @@ int     pcount = 0;
 
 /// FUNZIONI
 
-void ChildProcess(char *n)
-{
-     pid_t  pid;
-     char   *name = n;
+void swapandset0(int i, int last) {
+    if(last-i >= 0) { // solo per check
+        processi[i] = processi[last];
+        processi[last] = 0;
+    }
+}
 
-     pid = getpid();
-     printf("Child process %s starts (pid = %d)\n", name, pid);
-     wait();
+void ChildProcess(char *n) {
+    pid_t  pid;
+    char   *name = n;
+
+    pid = getpid();
+    printf("Child process %s starts (pid = %d)\n", name, pid);
+    printf("STILL RUNNING DC\n");
+}
+
+
+
+void killProcess(int pid){ // devo gestire se tolgo processi da in mezzo
+
+    kill(pid, SIGKILL);
+    int i = 0;
+    while (i < pcount){
+        if (pid == processi[i]){
+            swapandset0(i, pcount - 1);
+        }
+        i++;
+    }
+    pcount--;
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
@@ -44,26 +65,32 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
     }
     else if (arg_counter == 2 && strcmp(words[0],"pnew") == 0){
         printf("Creazione del processo %s\n", words[1]);
-        pid_t p
         processi[pcount] = fork();
         if (processi[pcount] < 0) {
             printf("Failed to fork process\n");
             exit(1);
         }
-        else if (processi[pcount] == 0){
-            pcount++; // Nb da tenere sempre dopo l'if ma prima del ChildProcess
+        if (processi[pcount] == 0){ // child process
             ChildProcess(words[1]);
+        }
+        else { // parent process
+            pcount++;
         }
     }
     else if (arg_counter == 2 && strcmp(words[0],"pinfo") == 0){
         printf("informazioni sul processo %s (almeno pid e ppid)\n", words[1]);
+
+        // DEBUG
+        pid_t main_p = getpid();
+        printf("this process id = %d\n", main_p);
+        // end debug
     }
     else if (arg_counter == 2 && strcmp(words[0],"pclose") == 0){
         printf("chiede al processo %s di chiudersi\n", words[1]);
-        kill(, SIGKILL);
+        killProcess(atoi(words[1]));
     }
     else if (arg_counter == 1 && strcmp(words[0],"quit") == 0)
-        exit(0);
+    exit(0);
 }
 
 int main()
@@ -76,14 +103,14 @@ int main()
     printf("Main process id = %d\n", main_p);
     // end debug
 
-    
+
     while (1) {
         /* Print the command prompt */
         printf("$> ");
 
         /* Read a command line */
         if (!fgets(line, MAX_LINE_SIZE, stdin))
-            return 0;
+        return 0;
         else {
             argc = 0; // reinizializzo numero parole inserite
             pch[argc] = strtok(line," ,.-\n\t");
