@@ -20,6 +20,7 @@ help:
 clean:
 	@echo "Pulizia..."
 	@rm -rf $(BUILD_DIR)
+	@rm -rf $(ASSETS_DIR)
 
 build: clean
 	@echo "Creazione build directory..."
@@ -32,4 +33,5 @@ assets: build
 	@mkdir -p $(ASSETS_DIR)
 
 test: assets
+	@echo "Eseguzione in modalità test..."
 	$(BUILD_DIR)/$(EXEC_NAME)
