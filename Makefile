@@ -7,7 +7,7 @@ CFLAGS =
 FILE_LIST = main.c
 BUILD_DIR = build
 ASSETS_DIR = assets
-EXEC_NAME = a.out
+EXEC_NAME = pmanager
 
 help:
 	@echo "\nGRUPPO:\n"
