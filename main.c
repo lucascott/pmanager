@@ -71,7 +71,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
             exit(1);
         }
         if (processi[pcount] == 0){ // child process
-            ChildProcess(words[1]);
+            //ChildProcess(words[1]);
         }
         else { // parent process
             pcount++;
@@ -98,13 +98,10 @@ int main()
     printf("SIMPLE SHELL: Type 'exit' or send EOF to exit.\n");
     int argc = 0;
 
-    // DEBUG
     pid_t main_p = getpid();
     printf("Main process id = %d\n", main_p);
-    // end debug
 
-
-    while (1) {
+    while (1 && getpid() == main_p) {
         /* Print the command prompt */
         printf("$> ");
 
