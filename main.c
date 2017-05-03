@@ -12,8 +12,8 @@ struct processo{
 	char name[100];
 	pid_t pid;
 };
-
 typedef struct processo Processo;
+
 char    	line[1024];
 char    	*pch[MAX_ARGS];
 
@@ -84,7 +84,7 @@ void killProcess(char* nome){ // devo gestire se tolgo processi da in mezzo
 		}
 		i++;
 	}
-    
+
     pcount--;
 }
 
