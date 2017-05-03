@@ -1,5 +1,3 @@
-/* Compile with: g++ -Wall –Werror -o shell shell.c */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,22 +8,62 @@
 #define MAX_ARGS 256
 #define MAX_LINE_SIZE 1024
 
-pid_t   pid;
-char    line[1024];
-char    *pch[MAX_ARGS];
+struct processo{
+	char name[100];
+	pid_t pid;
+};
 
-pid_t   processi[100];
-int     pcount = 0;
+typedef struct processo Processo;
+char    	line[1024];
+char    	*pch[MAX_ARGS];
+
+Processo	processi[100];
+int     	pcount = 0;
 
 /// FUNZIONI
 
-void swapandset0(int i, int last) {
+void print_list()
+{
+	printf("%d processi figli attivi\n", pcount);
+	int i = 0;
+	while (i < pcount) { // DELSI - iterazione lista
+		printf("Open process with pid = %d and name = %s\n",processi[i].pid,processi[i].name);
+		i++;
+	}
+}
+
+void new_process(char* nome)
+{
+	printf("Creazione del processo %s\n", nome);
+	Processo temp;
+	strcpy(temp.name,nome);
+	temp.pid = fork();
+	processi[pcount] = temp; // DELSI
+	if (processi[pcount].pid < 0) {
+		printf("Failed to fork process\n");
+		exit(1);
+	}
+	if (processi[pcount].pid == 0){ // child process
+		//ChildProcess(words[1]);
+		while(1)
+		{
+		}
+	}
+	else { // parent process
+		pcount++;
+	}
+}
+
+/*
+void swapandset0(int i, int last) { //DELSI
     if(last-i >= 0) { // solo per check
         processi[i] = processi[last];
         processi[last] = 0;
     }
 }
+*/
 
+/*
 void ChildProcess(char *n) {
     pid_t  pid;
     char   *name = n;
@@ -34,19 +72,19 @@ void ChildProcess(char *n) {
     printf("Child process %s starts (pid = %d)\n", name, pid);
     printf("STILL RUNNING DC\n");
 }
+*/
 
-
-
-void killProcess(int pid){ // devo gestire se tolgo processi da in mezzo
-
-    kill(pid, SIGKILL);
-    int i = 0;
-    while (i < pcount){
-        if (pid == processi[i]){
-            swapandset0(i, pcount - 1);
-        }
-        i++;
-    }
+void killProcess(char* nome){ // devo gestire se tolgo processi da in mezzo
+	int i = 0;
+    while (i < pcount) { // DELSI - iterazione lista
+		if (strcmp(nome,processi[i].name) == 0)
+		{
+			kill(processi[i].pid, SIGKILL);
+			//DELSI - deve fare pop lista
+		}
+		i++;
+	}
+    
     pcount--;
 }
 
@@ -55,27 +93,11 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         printf("\nComandi disponibili:\nphelp​ : stampa un elenco dei comandi disponibili\nplist​ : elenca i processi generati dalla shell custom\npnew <nome>​ : crea un nuovo processo con nome <nome>\npinfo <nome>​ : fornisce informazioni sul processo <nome> (almeno ​ pid ​ e ​ ppid ​ )\npclose <nome>​ : chiede al processo <nome> di chiudersi\nquit​ : esce dalla shell custom\n\n");
     }
     else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){
-        printf("%d processi figli attivi\n", pcount);
-        int i = 0;
-        while (i < pcount) {
-            printf("Open process with pid = %d\n",processi[i]);
-            i++;
-        }
+        print_list();
 
     }
     else if (arg_counter == 2 && strcmp(words[0],"pnew") == 0){
-        printf("Creazione del processo %s\n", words[1]);
-        processi[pcount] = fork();
-        if (processi[pcount] < 0) {
-            printf("Failed to fork process\n");
-            exit(1);
-        }
-        if (processi[pcount] == 0){ // child process
-            //ChildProcess(words[1]);
-        }
-        else { // parent process
-            pcount++;
-        }
+        new_process(words[1]);
     }
     else if (arg_counter == 2 && strcmp(words[0],"pinfo") == 0){
         printf("informazioni sul processo %s (almeno pid e ppid)\n", words[1]);
@@ -87,7 +109,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
     }
     else if (arg_counter == 2 && strcmp(words[0],"pclose") == 0){
         printf("chiede al processo %s di chiudersi\n", words[1]);
-        killProcess(atoi(words[1]));
+        killProcess(words[1]);
     }
     else if (arg_counter == 1 && strcmp(words[0],"quit") == 0)
     exit(0);
@@ -95,7 +117,6 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
 
 int main()
 {
-    printf("SIMPLE SHELL: Type 'exit' or send EOF to exit.\n");
     int argc = 0;
 
     pid_t main_p = getpid();
