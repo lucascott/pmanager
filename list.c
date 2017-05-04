@@ -120,6 +120,12 @@ pid_t removebyname(List *ilist, char *name) {
   pid_t found = -1;
   if (!ilist->head) return -1;
   ptr = ilist->head;
+  if(strcmp(ptr->pname, name) == 0) {
+    ilist->head = ptr->next;
+    found = ptr->pid;
+    free(ptr);
+    return found;
+  }
   while (ptr->next != 0) {
     if(strcmp((ptr->next)->pname, name) == 0) {
       found = (ptr->next)->pid;
