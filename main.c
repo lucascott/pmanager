@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <sys/prctl.h>
 #include <signal.h>
 #include "list.h"
 
@@ -14,6 +15,9 @@ List processi;
 char    	line[1024];
 char    	*pch[MAX_ARGS];
 int     	pcount = 0;
+
+int     	fd[2], nbytes;
+char		readbuffer[80];
 
 /// FUNZIONI
 
@@ -34,9 +38,36 @@ void new_process(char* nome)
 		exit(1);
 	}
 	if (getitem(processi, 0).pid == 0){ // child process
-		//ChildProcess(words[1]);
+
 		while(1)
 		{
+			close(fd[1]);
+			/* Read in a string from the pipe */
+			nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
+
+			if (nbytes != -1){
+				printf("Received string: %s\n", readbuffer);
+
+				char * c_pch[MAX_ARGS];
+				int c_argc = 0; // reinizializzo numero parole inserite
+	            c_pch[c_argc] = strtok(readbuffer," ,.-\n\t");
+	            while (c_pch[c_argc] != NULL) {
+	                c_argc++;
+	                //printf ("%s\n",pch[argc-1]);
+	                c_pch[c_argc] = strtok(NULL, " ,.-\n\t");
+	            }
+
+				char mystrpid[MAX_LINE_SIZE];
+				sprintf(mystrpid,"%d",getpid());
+
+				printf("%s\n", mystrpid);
+
+				if (c_argc == 2 && strcmp(c_pch[0],"clone") == 0 && strcmp(c_pch[1],mystrpid) == 0 ){
+					printf("CLONAZIONE %d\n", getpid() );
+				}
+
+				nbytes = -1;
+			}
 		}
 	}
 }
@@ -85,17 +116,36 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         printf("this process id = %d\n", main_p);
         // end debug
     }
+	else if (arg_counter == 2 && strcmp(words[0],"pclone") == 0){
+        printf("Clonazione processo %s\n", words[1]);
+		/* Child process closes up input side of pipe */
+		close(fd[0]);
+
+		pid_t p = getPidbyName(&processi,words[1]);
+
+		char str[MAX_LINE_SIZE] = "clone ";
+		char strpid[MAX_LINE_SIZE];
+		sprintf(strpid,"%d",p);
+		strcat(str,strpid);
+
+	 	write(fd[1], str ,(strlen(str)+1));
+    }
     else if (arg_counter == 2 && strcmp(words[0],"pclose") == 0){
         printf("chiede al processo %s di chiudersi\n", words[1]);
         killProcess(words[1]);
     }
     else if (arg_counter == 1 && strcmp(words[0],"quit") == 0)
-    exit(0);
+	{
+		killAll(&processi);
+    	exit(0);
+	}
 }
 
 int main()
 {
+	prctl(PR_SET_PDEATHSIG, SIGHUP);
     int argc = 0;
+	pipe(fd);
 
     pid_t main_p = getpid();
     printf("Main process id = %d\n", main_p);
