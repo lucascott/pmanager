@@ -1,18 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <signal.h>
 #include "list.h"
 
 void initlist(List *ilist) {
   ilist->head = 0;
 }
 
-void insertfront(List *ilist, int val) {
+void insertfront(List *ilist, pid_t pid, char* name) {
    Listitem *newitem;
    newitem = (Listitem *)malloc(sizeof(Listitem));
    newitem->next = ilist->head;
-   newitem->data = val;
+   strcpy((newitem->pname), name);
+   newitem->pid = pid;
    ilist->head = newitem;
 }
 
-void insertback(List *ilist, int val) {
+/*void insertback(List *ilist, int val) {
    Listitem *ptr;
    Listitem *newitem;
    newitem = (Listitem *)malloc(sizeof(Listitem));
@@ -28,7 +35,8 @@ void insertback(List *ilist, int val) {
        ptr = ptr->next;
    }
    ptr->next = newitem;
-}
+}*/
+
 
 int length(List ilist){      /* returns list length */
    Listitem *ptr;
@@ -54,9 +62,9 @@ void destroy(List *ilist) {          /* deletes list */
    ilist->head = 0;
 }
 
-void setitem(List *ilist, int n, int val){  
-  /* modifies a value*/
-  /* assume length is at least n long */
+/*void setitem(List *ilist, int n, int val){  
+  /// modifies a value
+  // assume length is at least n long 
    Listitem *ptr;
    int count = 0;
    if (!ilist->head) return;
@@ -68,21 +76,59 @@ void setitem(List *ilist, int n, int val){
    }
    if (ptr)
    ptr->data = val;
-}
+}*/
 
-int getitem(List ilist, int n) {   
+Listitem getitem(List ilist, int n) {   
  /* returns a list value,
   * assume length is at least n long */
    Listitem *ptr;
+   Listitem temp;
+   temp.pid = -1;
    int count = 0;
-   if (!ilist.head) return 0;
+   if (!ilist.head) return temp;
    ptr = ilist.head;
-   if (n==0) return ptr->data;
+   if (n==0) {
+      temp = *ptr;
+      return temp;
+    }
    while (ptr->next) {
         ptr = ptr->next;
         count++;
         if (n == count)
-             return (ptr->data);
+            {
+              temp = *ptr;
+             return temp;
+            }
    }
-   return 0;
+   return temp;
+}
+
+void printlist(List ilist) {
+  Listitem *ptr;
+  if (!ilist.head) return;
+  ptr = ilist.head;
+  while (ptr->next != 0) {
+    printf("%d\t %s\n",ptr->pid,ptr->pname);
+    ptr = ptr->next;
+  }
+  printf("%d\t %s\n",ptr->pid,ptr->pname);
+}
+
+pid_t removebyname(List *ilist, char *name) {
+  Listitem *ptr;
+  Listitem *tmp;
+  pid_t found = -1;
+  if (!ilist->head) return -1;
+  ptr = ilist->head;
+  while (ptr->next != 0) {
+    if(strcmp((ptr->next)->pname, name) == 0) {
+      found = (ptr->next)->pid;
+      tmp = ptr->next;
+      ptr->next = tmp->next;
+      free(tmp);
+      return found;
+    }
+    ptr = ptr -> next;
+  }
+  return -1;
 }

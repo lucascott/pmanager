@@ -4,53 +4,40 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <signal.h>
+#include "list.h"
 
 #define MAX_ARGS 256
 #define MAX_LINE_SIZE 1024
 
-struct processo{
-	char name[100];
-	pid_t pid;
-};
-typedef struct processo Processo;
+List processi;
 
 char    	line[1024];
 char    	*pch[MAX_ARGS];
-
-Processo	processi[100];
 int     	pcount = 0;
 
 /// FUNZIONI
 
 void print_list()
 {
-	printf("%d processi figli attivi\n", pcount);
-	int i = 0;
-	while (i < pcount) { // DELSI - iterazione lista
-		printf("Open process with pid = %d and name = %s\n",processi[i].pid,processi[i].name);
-		i++;
-	}
+	printf("%d processi figli attivi\n", length(processi));
+    printf("PID\t NAME\n=================\n");
+	printlist(processi);
 }
 
 void new_process(char* nome)
 {
 	printf("Creazione del processo %s\n", nome);
-	Processo temp;
-	strcpy(temp.name,nome);
-	temp.pid = fork();
-	processi[pcount] = temp; // DELSI
-	if (processi[pcount].pid < 0) {
+    pid_t pid = fork();
+	insertfront(&processi, pid, nome);
+	if (getitem(processi, 0).pid < 0) {
 		printf("Failed to fork process\n");
 		exit(1);
 	}
-	if (processi[pcount].pid == 0){ // child process
+	if (getitem(processi, 0).pid == 0){ // child process
 		//ChildProcess(words[1]);
 		while(1)
 		{
 		}
-	}
-	else { // parent process
-		pcount++;
 	}
 }
 
@@ -75,17 +62,8 @@ void ChildProcess(char *n) {
 */
 
 void killProcess(char* nome){ // devo gestire se tolgo processi da in mezzo
-	int i = 0;
-    while (i < pcount) { // DELSI - iterazione lista
-		if (strcmp(nome,processi[i].name) == 0)
-		{
-			kill(processi[i].pid, SIGKILL);
-			//DELSI - deve fare pop lista
-		}
-		i++;
-	}
-
-    pcount--;
+	pid_t temp = removebyname(&processi, nome);
+    kill(temp, SIGKILL);
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
@@ -121,7 +99,7 @@ int main()
 
     pid_t main_p = getpid();
     printf("Main process id = %d\n", main_p);
-
+    initlist(&processi);
     while (1 && getpid() == main_p) {
         /* Print the command prompt */
         printf("$> ");

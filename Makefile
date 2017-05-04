@@ -4,7 +4,7 @@
 
 CC = gcc
 CFLAGS =
-FILE_LIST = main.c
+FILE_LIST = list.h list.c main.c
 BUILD_DIR = build
 ASSETS_DIR = assets
 EXEC_NAME = pmanager
