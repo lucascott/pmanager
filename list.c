@@ -10,12 +10,13 @@ void initlist(List *ilist) {
     ilist->head = 0;
 }
 
-void insertfront(List *ilist, pid_t pid, char* name) {
+void insertfront(List *ilist, pid_t pid, char *name, int ppid) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     newitem->next = ilist->head;
     strcpy((newitem->pname), name);
     newitem->pid = pid;
+    newitem->ppid = ppid;
     ilist->head = newitem;
 }
 
@@ -107,10 +108,10 @@ void printlist(List ilist) {
     if (!ilist.head) return;
     ptr = ilist.head;
     while (ptr->next != 0) {
-        printf("%d\t %s\n",ptr->pid,ptr->pname);
+        printf("%d\t %s\t %d\n",ptr->pid,ptr->pname, ptr->ppid);
         ptr = ptr->next;
     }
-    printf("%d\t %s\n",ptr->pid,ptr->pname);
+    printf("%d\t %s\t %d\n",ptr->pid,ptr->pname, ptr->ppid);
 }
 
 pid_t removebyname(List *ilist, char *name) {

@@ -1,5 +1,7 @@
-#Custom
+#CUSTOM
 pmanager
+datagen
+data.txt
 
 # Prerequisites
 *.d

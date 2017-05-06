@@ -6,7 +6,7 @@
 struct listitem {
         char pname[100];
         pid_t pid;
-        int p_count;
+        int ppid;
         struct listitem *next;
 };
 typedef struct listitem Listitem;
@@ -18,7 +18,7 @@ typedef struct list List;
 pid_t removebyname(List *ilist, char *name);
 void printlist(List ilist);
 void initlist (List *);              /* initialize an empty list */
-void insertfront(List * , pid_t pid, char* name);  /* insert val at front */
+void insertfront(List * , pid_t pid, char *name, int ppid);  /* insert val at front */
 //void insertback(List  *, pid_t pid, char name);   /* insert val at back */
 int length(List);                    /* returns list length */
 void destroy(List *);                /* deletes list */
