@@ -249,16 +249,18 @@ int main(int n_par, char *argv[]){
                 fscanf(ifp,"%s", temp);
                 strcat(line, temp);
             }
-			// tokenizzo il comando passato
-			char a[10];
+
+			// DEBUG
+			//char a[10];
 			//scanf("%s", a);
+			//END DEBUG
+
+			// tokenizzo il comando passato
 			tokenize(line, pch, &argc);
-			printf("ARGS: %d\n", argc);
-			printf("$> %s %s\n", pch[0],pch[1]);
-
-			// wait for testing
-
-
+			if(argc == 1)
+				printf("$> %s\n", pch[0]);
+			else
+				printf("$> %s %s\n", pch[0],pch[1]);
 			// eseguo operazioni richieste
 	        esegui(pch, argc);
         }
