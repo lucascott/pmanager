@@ -49,22 +49,25 @@ void tokenize(char * line, char ** tokens, int *argc){
         tokens[*argc] = strtok (NULL, " ,.-\n\t");
     }
 }
+void getMyPid(char * mystrpid){
+    sprintf(mystrpid,"%d",getpid());
+}
 
 void new_process(char *nome){
 	printf("Creazione del processo %s\n", nome);
     pid_t pid = fork();
 	pid_t ppid = getpid();
 	insertfront(&processi, pid, nome, ppid);
-	if (getitem(processi, 0).pid < 0) {
+	if (pid < 0) {
 		printf("Failed to fork process\n");
 		exit(1);
 	}
-	if (getitem(processi, 0).pid == 0){ // PROCESSO FIGLIO
-
+	if (pid == 0){ // PROCESSO FIGLIO
 		while(1)
 		{
 			// apro la pipe del figlio in attesa di messaggio di clonazione
 			close(fd[1]);
+
 			nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
 
 			if (nbytes != -1){
@@ -76,8 +79,10 @@ void new_process(char *nome){
 
 				// converto il pid del processo in stringa
 				char mystrpid[MAX_LINE_SIZE];
-				sprintf(mystrpid,"%d",getpid());
+                getMyPid(mystrpid);
+				//sprintf(mystrpid,"%d",getpid());
 				printf("%s\n", mystrpid);
+
 
 				if (c_argc == 3 && strcmp(c_pch[0],"clone") == 0 && strcmp(c_pch[1],mystrpid) == 0 ){
 					printf("CLONAZIONE %d\n", getpid() );
@@ -96,7 +101,7 @@ void new_process(char *nome){
 					else // processo padre "figlio del padre"
 					{
 						counter++; // aumento contatore processi clonati
-
+                        /*
 						//messaggio di ritorno al padre
 						char str[MAX_LINE_SIZE];
 						char strcounter[MAX_LINE_SIZE];
@@ -112,34 +117,20 @@ void new_process(char *nome){
 						// invio messaggio al padre
 						close(fc[0]);
 						write(fc[1], str ,(strlen(str)+1));
+                        */
 					}
 				}
+                else { // se il pid non concide rimando il messaggio in pipe
+                    close(fd[0]);
+                    write(fd[1], readbuffer ,(strlen(readbuffer)+1));
+                }
+
 				// resetto counter bytes letti per rimanere nel loop del processo
-				nbytes = -1;
+                nbytes = -1;
 			}
 		}
 	}
 }
-
-/*
-void swapandset0(int i, int last) { //DELSI
-    if(last-i >= 0) { // solo per check
-        processi[i] = processi[last];
-        processi[last] = 0;
-    }
-}
-*/
-
-/*
-void ChildProcess(char *n) {
-    pid_t  pid;
-    char   *name = n;
-
-    pid = getpid();
-    printf("Child process %s starts (pid = %d)\n", name, pid);
-    printf("STILL RUNNING DC\n");
-}
-*/
 
 void killProcess(char* nome){ // devo gestire se tolgo processi da in mezzo
 	pid_t temp = removebyname(&processi, nome);
@@ -186,7 +177,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
 			strcat(str,words[1]);
 			// invio messaggio in pipe1 ai processi figli
 		 	write(fd[1], str ,(strlen(str)+1));
-
+            /*
 			// apetura pipe2 in lettura risposta clonazione
 			do {
 				close(fc[1]);
@@ -195,6 +186,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
 					printf("risposta child: %s\n", readbuffer_c);
 				}
 			} while (nbytes_c == -1);
+            */
 		}
 
     }
@@ -268,6 +260,7 @@ int main(int n_par, char *argv[]){
 	else {
 	    while (1 && getpid() == main_p) {
 	        // stampo il command prompt
+            fflush(stdout); // serve per stampare tutto il buffer prima di dare il controllo alla shell
 	        printf("$> ");
 	        // lettura comandi
 	        if (!fgets(line, MAX_LINE_SIZE, stdin)){
