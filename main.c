@@ -12,16 +12,16 @@
 
 List processi;
 
-// pipe1 (proc. padre -> figli)
-int    		fd[2], nbytes;
-char		readbuffer[80];
-
 // pipe2 (proc. figlio -> padre)
 int     	fc[2], nbytes_c;
 char		readbuffer_c[80];
+int         masterpid;
 
 // contatore processi cloni generati (solo per figli)
 int 		counter = 0;
+int         martino = 0;
+struct sigaction act;
+
 
 /// FUNZIONI
 int isCommandWithParam(char * str){
@@ -34,13 +34,11 @@ int isCommandWithParam(char * str){
     }
     return 0;
 }
-
 void print_list(){
 	printf("%d processi figli attivi\n", length(processi));
     printf("PID\t NAME\t PPID\n=====================\n");
 	printlist(processi);
 }
-
 void tokenize(char * line, char ** tokens, int *argc){
     *argc = 0; // reinizializzo numero parole inserite
     tokens[*argc] = strtok(line," ,.-\n\t");
@@ -53,6 +51,54 @@ void getMyPid(char * mystrpid){
     sprintf(mystrpid,"%d",getpid());
 }
 
+static void handler (int signo, siginfo_t *siginfo, void *context)
+{
+    if (signo == SIGUSR1){
+        printf("%d received clone signal USR1\n", getpid());
+
+        pid_t tpid = fork();
+        if (tpid < 0) {
+            printf("Failed to fork clone process\n");
+            exit(1);
+        }
+        else if (tpid == 0){ // processo clone del figlio cicla all'infinito
+            while (1) {sleep(1);}
+        }
+        else // processo padre "figlio del padre"
+        {
+            counter++; // aumento contatore processi clonati
+
+            //messaggio di ritorno al padre
+            char str[MAX_LINE_SIZE];
+            char strnome[MAX_LINE_SIZE];
+            getNamebyPid(&processi, 0 ,strnome); // 0 perchè il processo figlio è sempre inserito nella sua lista con pid 0
+            char strcounter[MAX_LINE_SIZE];
+            char strtpid[MAX_LINE_SIZE];
+            sprintf(strcounter,"%d",counter); // converto counter in stringa per strcat
+            sprintf(strtpid,"%d",tpid);
+            //Messaggio di risposta: "pid nome_counter"
+
+            strcpy(str,strtpid);
+            strcat(str," ");
+            strcat(str,strnome);
+            strcat(str,"_");
+            strcat(str,strcounter);
+            // invio messaggio al padre
+            fflush(stdout);
+            printf("STRINGA: %s\npid dc: %d",str, getpid() );
+            fflush(stdout);
+            close(fc[0]);
+            printf("chiuso");
+            fflush(stdout);
+            int scrittente = write(fc[1], str,(strlen(str)+1));
+            fflush(stdout);
+            printf("scritto: %d", scrittente);
+            fflush(stdout);
+        }
+    }
+}
+
+
 void new_process(char *nome){
 	printf("Creazione del processo %s\n", nome);
     pid_t pid = fork();
@@ -63,72 +109,11 @@ void new_process(char *nome){
 		exit(1);
 	}
 	if (pid == 0){ // PROCESSO FIGLIO
-		while(1)
-		{
-			// apro la pipe del figlio in attesa di messaggio di clonazione
-			close(fd[1]);
-
-			nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
-
-			if (nbytes != -1){
-				printf("Received string: %s\n", readbuffer);
-
-				char * c_pch[MAX_ARGS];
-				int c_argc = 0;
-				tokenize(readbuffer, c_pch, &c_argc);
-
-				// converto il pid del processo in stringa
-				char mystrpid[MAX_LINE_SIZE];
-                getMyPid(mystrpid);
-				//sprintf(mystrpid,"%d",getpid());
-				printf("%s\n", mystrpid);
-
-
-				if (c_argc == 3 && strcmp(c_pch[0],"clone") == 0 && strcmp(c_pch[1],mystrpid) == 0 ){
-					printf("CLONAZIONE %d\n", getpid() );
-					char tname[MAX_LINE_SIZE];
-					pid_t tpid;
-					tpid = fork();
-					if (tpid < 0)
-					{
-						printf("Failed to fork clone process\n");
-						exit(1);
-					}
-					else if (tpid == 0) // processo clone del figlio cicla all'infinito
-					{
-						while (1) {}
-					}
-					else // processo padre "figlio del padre"
-					{
-						counter++; // aumento contatore processi clonati
-                        /*
-						//messaggio di ritorno al padre
-						char str[MAX_LINE_SIZE];
-						char strcounter[MAX_LINE_SIZE];
-						char strtpid[MAX_LINE_SIZE];
-						sprintf(strcounter,"%d",counter); // converto counter in stringa per strcat
-						sprintf(strtpid,"%d",tpid);
-						//Messaggio di risposta: "pid nome_counter"
-						strcat(str,strtpid);
-						strcat(str," ");
-						strcat(str,c_pch[2]);
-						strcat(str,"_");
-						strcat(str,strcounter);
-						// invio messaggio al padre
-						close(fc[0]);
-						write(fc[1], str ,(strlen(str)+1));
-                        */
-					}
-				}
-                else { // se il pid non concide rimando il messaggio in pipe
-                    close(fd[0]);
-                    write(fd[1], readbuffer ,(strlen(readbuffer)+1));
-                }
-
-				// resetto counter bytes letti per rimanere nel loop del processo
-                nbytes = -1;
-			}
-		}
+        if (sigaction(SIGUSR1, &act, NULL) < 0) {
+    		perror ("sigaction");
+    	}
+		while(1){
+        }
 	}
 }
 
@@ -165,22 +150,11 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
 		}
 		else {
 			printf("Clonazione processo %s\n", words[1]);
-
-			close(fd[0]);
-
-			// genero messaggio da inviare
-			char str[MAX_LINE_SIZE] = "clone ";
-			char strpid[MAX_LINE_SIZE];
-			sprintf(strpid,"%d",p);
-			strcat(str,strpid);
-			strcat(str," ");
-			strcat(str,words[1]);
-			// invio messaggio in pipe1 ai processi figli
-		 	write(fd[1], str ,(strlen(str)+1));
+            kill(p,SIGUSR1);
             /*
-			// apetura pipe2 in lettura risposta clonazione
+            nbytes_c = -1;
+            close(fc[1]);
 			do {
-				close(fc[1]);
 				nbytes_c = read(fc[0], readbuffer_c, sizeof(readbuffer_c));
 				if (nbytes_c != -1){
 					printf("risposta child: %s\n", readbuffer_c);
@@ -210,11 +184,15 @@ int main(int n_par, char *argv[]){
     int 	argc = 0;
 	char    line[MAX_LINE_SIZE];
 	char    *pch[MAX_ARGS];
+    masterpid = getpid();
 
-	prctl(PR_SET_PDEATHSIG, SIGHUP);
+    memset (&act, '\0', sizeof(act));
+    act.sa_sigaction = &handler;
+    act.sa_flags = SA_SIGINFO;
+
+    // apro la counicaz sig
 
 	// apro le pipes
-	pipe(fd);
 	pipe(fc);
 
 	// DEBUG
@@ -227,7 +205,7 @@ int main(int n_par, char *argv[]){
 
 	FILE *ifp;
 	printf("Pmanager run with %d params\n", n_par);
-	if (n_par == 2){
+	if (n_par == 2){ // SE PASSATO IL FILE
 		ifp = fopen(argv[1], "r");
 		if (ifp == NULL) {
 			printf("Impossibile aprire \"%s\"...\n",argv[1]);

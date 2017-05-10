@@ -26,5 +26,6 @@ void destroy(List *);                /* deletes list */
 Listitem getitem(List, int n);            /* returns value at n*/
 pid_t getPidbyName (List *ilist, char *name);
 int killAll(List *);
+void getNamebyPid (List *ilist, pid_t pid, char * found);
 
 #endif  /* _LIST_H */

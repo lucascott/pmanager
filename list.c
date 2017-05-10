@@ -177,3 +177,29 @@ int killAll(List *ilist) {
     free (ptr);
     return 1;
 }
+
+
+void getNamebyPid (List *ilist, pid_t pid, char * found) {
+    Listitem *ptr;
+    Listitem *tmp;
+    if (!ilist->head){
+        strcpy(found,"");
+        return;
+    }
+    ptr = ilist->head;
+    if(ptr->pid == pid) {
+        printf("trovato %s\n",  ptr->pname );
+        strcpy(found, ptr->pname);
+        return;
+    }
+    while (ptr->next != 0) {
+        if(ptr->pid == pid) {
+            printf("trovato %s\n", (ptr->next)->pname );
+            strcpy(found, (ptr->next)->pname);
+            return;
+        }
+        ptr = ptr -> next;
+    }
+    strcpy(found,"");
+    return;
+}
