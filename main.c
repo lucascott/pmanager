@@ -10,9 +10,12 @@
 #define MAX_ARGS 256
 #define MAX_LINE_SIZE 1024
 
+#define READ 0
+#define WRITE 1
+
 List processi;
 
-// pipe2 (proc. figlio -> padre)
+// pipe (proc. figlio -> padre)
 int     	fc[2], nbytes_c;
 char		readbuffer_c[80];
 int         masterpid;
@@ -20,11 +23,12 @@ int         masterpid;
 // contatore processi cloni generati (solo per figli)
 int 		counter = 0;
 int         martino = 0;
+
 struct sigaction act;
 
 
 /// FUNZIONI
-int isCommandWithParam(char * str){
+int isCommandWithParam(char * str) {
     if (strcmp(str, "pnew") == 0 ||
     strcmp(str, "pinfo") == 0 ||
     strcmp(str, "pclose") == 0 ||
@@ -47,13 +51,12 @@ void tokenize(char * line, char ** tokens, int *argc){
         tokens[*argc] = strtok (NULL, " ,.-\n\t");
     }
 }
-void getMyPid(char * mystrpid){
+void getMyPid(char * mystrpid) {
     sprintf(mystrpid,"%d",getpid());
 }
 
-static void handler (int signo, siginfo_t *siginfo, void *context)
-{
-    if (signo == SIGUSR1){
+static void handler (int signo, siginfo_t *siginfo, void *context) {
+    if (signo == SIGUSR1) {
         printf("%d received clone signal USR1\n", getpid());
 
         pid_t tpid = fork();
@@ -61,11 +64,17 @@ static void handler (int signo, siginfo_t *siginfo, void *context)
             printf("Failed to fork clone process\n");
             exit(1);
         }
-        else if (tpid == 0){ // processo clone del figlio cicla all'infinito
-            while (1) {sleep(1);}
+        else if (tpid == 0) { // processo clone del figlio cicla all'infinito
+            // crea l'handler per segnali di clonazione
+            printf("entrato nel clone...\n");
+            fflush(stdout);
+            if (sigaction(SIGUSR1, &act, NULL) < 0) {
+        		perror ("sigaction error");
+        	}
+            // attendo messaggi
+            while (1) {usleep(1);}
         }
-        else // processo padre "figlio del padre"
-        {
+        else {// processo padre "figlio del padre"
             counter++; // aumento contatore processi clonati
 
             //messaggio di ritorno al padre
@@ -84,15 +93,12 @@ static void handler (int signo, siginfo_t *siginfo, void *context)
             strcat(str,"_");
             strcat(str,strcounter);
             // invio messaggio al padre
-            fflush(stdout);
-            printf("STRINGA: %s\npid dc: %d",str, getpid() );
-            fflush(stdout);
-            close(fc[0]);
-            printf("chiuso");
-            fflush(stdout);
-            int scrittente = write(fc[1], str,(strlen(str)+1));
-            fflush(stdout);
-            printf("scritto: %d", scrittente);
+            printf("STRINGA: %s\tPID dc: %d",str, getpid() );
+            write(fc[WRITE], str,(strlen(str)+1));
+            // DEBUG
+            pid_t main_p = getpid();
+            printf("this process id = %d\n", main_p);
+            // end debug
             fflush(stdout);
         }
     }
@@ -113,6 +119,7 @@ void new_process(char *nome){
     		perror ("sigaction");
     	}
 		while(1){
+            sleep(-1);
         }
 	}
 }
@@ -149,18 +156,24 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
 			printf("Errore processo %s non esistente\n", words[1]);
 		}
 		else {
-			printf("Clonazione processo %s\n", words[1]);
+			printf("Clonazione processo %s (pid: %d)\n", words[1], p);
+            //mando messaggio a processo che deve clonarsi
             kill(p,SIGUSR1);
-            /*
             nbytes_c = -1;
-            close(fc[1]);
 			do {
-				nbytes_c = read(fc[0], readbuffer_c, sizeof(readbuffer_c));
+				nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
+                printf("letto...\n" );
+                fflush(stdout);
 				if (nbytes_c != -1){
 					printf("risposta child: %s\n", readbuffer_c);
+                    char * ris [MAX_ARGS];
+                    int arg_ris;
+                    tokenize(readbuffer_c, ris, &arg_ris);
+                    insertfront(&processi, atoi(ris[0]), ris[1],(int) p);
 				}
+                fflush(stdout);
 			} while (nbytes_c == -1);
-            */
+
 		}
 
     }
