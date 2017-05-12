@@ -19,8 +19,10 @@ List processi;
 // pipe (proc. figlio -> padre)
 int     	fc[2], nbytes_c;
 char		readbuffer_c[80];
-int         masterpid;
 
+// pipe (proc. figlio -> padre)
+int         fn[2], nbytes_n;
+char        readbuffer_n[80];
 // contatore processi cloni generati (solo per figli)
 int 		counter = 0;
 
@@ -56,8 +58,18 @@ void getMyPid(char * mystrpid) {
 
 
 static void handler (int signo) { //, siginfo_t *siginfo, void *context
-    if (signo == SIGCONT) {
+    if (signo == SIGUSR1) {
         printf("%d received clone signal USR1\n", getpid());
+        nbytes_n = -1;
+        do {
+            nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
+            printf("letto...\n" );
+            fflush(stdout);
+            if (nbytes_n != -1){
+                printf("nome dal main: %s\n", readbuffer_n);
+            }
+            fflush(stdout);
+        }while(nbytes_n == -1);
 
         pid_t tpid = fork();
         if (tpid < 0) {
@@ -66,9 +78,9 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
             }
         else if (tpid == 0) { // processo clone del figlio cicla all'infinito
             // crea l'handler per segnali di clonazione
-            signal(SIGCONT,handler);
-
+            //signal(SIGUSR1,handler);
             printf("HANDLED, entrato nel clone...\n");
+
             fflush(stdout);
         }
         else {// processo padre "figlio del padre"
@@ -76,19 +88,19 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
 
             //messaggio di ritorno al padre
             char str[MAX_LINE_SIZE];
-            char strnome[MAX_LINE_SIZE];
-            getNamebyPid(&processi, 0 ,strnome); // 0 perchè il processo figlio è sempre inserito nella sua lista con pid 0
             char strcounter[MAX_LINE_SIZE];
             char strtpid[MAX_LINE_SIZE];
             sprintf(strcounter,"%d",counter); // converto counter in stringa per strcat
             sprintf(strtpid,"%d",tpid);
+            
             //Messaggio di risposta: "pid nome_counter"
-
             strcpy(str,strtpid);
             strcat(str," ");
-            strcat(str,strnome);
+            strcat(str,readbuffer_n);
             strcat(str,"_");
             strcat(str,strcounter);
+
+
             // invio messaggio al padre
             printf("STRINGA: %s\tPID dc: %d",str, getpid() );
             write(fc[WRITE], str,(strlen(str)+1));
@@ -106,7 +118,6 @@ void new_process(char *nome){
     printf("Creazione del processo %s\n", nome);
     pid_t pid = fork();
     pid_t ppid = getpid();
-    insertfront(&processi, pid, nome, ppid);
     if (pid < 0) {
         printf("Failed to fork process\n");
         exit(1);
@@ -115,6 +126,9 @@ void new_process(char *nome){
         while(1){
             sleep(-1);
         }
+    }
+    else{
+        insertfront(&processi, pid, nome, ppid);
     }
 }
 
@@ -152,8 +166,9 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         else {
             printf("Clonazione processo %s (pid: %d)\n", words[1], p);
             //mando messaggio a processo che deve clonarsi
-            kill(p,SIGCONT);
-            signal(SIGCONT,handler);
+            kill(p,SIGUSR1);
+            write(fn[WRITE], words[1],(strlen(words[1])+1));
+            signal(SIGUSR1,handler);
             nbytes_c = -1;
             do {
                 nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
@@ -192,12 +207,12 @@ int main(int n_par, char *argv[]){
     int 	argc = 0;
     char    line[MAX_LINE_SIZE];
     char    *pch[MAX_ARGS];
-    masterpid = getpid();
 
     // apro la pipe
     pipe(fc);
+    pipe(fn);
 
-    if (signal(SIGCONT, handler) == SIG_ERR){
+    if (signal(SIGUSR1, handler) == SIG_ERR){
         printf("\ncan't catch SIGUSR1\n");
     }
     // DEBUG
