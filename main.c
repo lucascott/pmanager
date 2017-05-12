@@ -92,7 +92,7 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
             char strtpid[MAX_LINE_SIZE];
             sprintf(strcounter,"%d",counter); // converto counter in stringa per strcat
             sprintf(strtpid,"%d",tpid);
-            
+
             //Messaggio di risposta: "pid nome_counter"
             strcpy(str,strtpid);
             strcat(str," ");
@@ -132,29 +132,36 @@ void new_process(char *nome){
     }
 }
 
-void killProcess(char* nome){ // devo gestire se tolgo processi da in mezzo
-    pid_t temp = removebyname(&processi, nome);
+void info_process(char *nome){
+    pid_t pid = getPidbyName(&processi, nome);
+    pid_t ppid = getPPidbyName(&processi, nome);
+    printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
+
+}
+
+void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
+    pid_t temp = change_item_name(&processi, nome, "XXX");
     kill(temp, SIGKILL);
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
+    // FATTO
     if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
         printf("\nComandi disponibili:\nphelp​ : stampa un elenco dei comandi disponibili\nplist​ : elenca i processi generati dalla shell custom\npnew <nome>​ : crea un nuovo processo con nome <nome>\npinfo <nome>​ : fornisce informazioni sul processo <nome>\npclose <nome>​ : chiede al processo <nome> di chiudersi\npspawn <nome>: chiede al processo <nome> di clonarsi creando <nome_i> con i progressivo\nprmall <nome>: chiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree: mostra la gerarchia completa dei processi generati attivi\nquit​ : esce dalla shell custom\n\n");
     }
+    // FATTO -- formattazione fatta bene
     else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){
         print_list();
     }
+    // FATTO -- maggiori info in console
     else if (arg_counter == 2 && strcmp(words[0],"pnew") == 0){
         new_process(words[1]);
     }
+    // FATTO
     else if (arg_counter == 2 && strcmp(words[0],"pinfo") == 0){
-        printf("informazioni sul processo %s (almeno pid e ppid)\n", words[1]);
-
-        // DEBUG
-        pid_t main_p = getpid();
-        printf("this process id = %d\n", main_p);
-        // end debug
+        info_process(words[1]);
     }
+    // FATTO
     else if (arg_counter == 2 && strcmp(words[0],"pspawn") == 0){
 
         // ottengo pid processo dal nome passato dall'utente
@@ -179,7 +186,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                     char * ris [MAX_ARGS];
                     int arg_ris;
                     tokenize(readbuffer_c, ris, &arg_ris);
-                    insertfront(&processi, atoi(ris[0]), ris[1],(int) p);
+                    insertfront(&processi, atoi(ris[0]), ris[1], p);
                 }
                 fflush(stdout);
             } while (nbytes_c == -1);
@@ -187,9 +194,10 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         }
 
     }
+    //
     else if (arg_counter == 2 && strcmp(words[0],"pclose") == 0){
         printf("Chiedo al processo %s di chiudersi\n", words[1]);
-        killProcess(words[1]);
+        kill_process(words[1]);
     }
     else if (arg_counter == 2 && strcmp(words[0],"prmall") == 0){
         printf("NON DISPONIBILE - chiude processo e eventuali cloni\n");

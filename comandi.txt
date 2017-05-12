@@ -1,0 +1,12 @@
+pnew a
+pspawn a
+pspawn a_1
+pspawn a_1
+plist
+pclose a_1
+plist
+pclose a_1_1
+plist
+pclose a_1_2
+plist
+quit

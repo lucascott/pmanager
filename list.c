@@ -10,7 +10,7 @@ void initlist(List *ilist) {
     ilist->head = 0;
 }
 
-void insertfront(List *ilist, pid_t pid, char *name, int ppid) {
+void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     newitem->next = ilist->head;
@@ -159,6 +159,26 @@ pid_t getPidbyName (List *ilist, char *name) {
     return -1;
 }
 
+pid_t getPPidbyName (List *ilist, char *name) {
+    Listitem *ptr;
+    Listitem *tmp;
+    int found = -1;
+    if (!ilist->head) return -1;
+    ptr = ilist->head;
+    if(strcmp(ptr->pname, name) == 0) {
+        found = ptr->ppid;
+        return found;
+    }
+    while (ptr->next != 0) {
+        if(strcmp((ptr->next)->pname, name) == 0) {
+            found = (ptr->next)->ppid;
+            return found;
+        }
+        ptr = ptr -> next;
+    }
+    return -1;
+}
+
 int killAll(List *ilist) {
     Listitem *ptr;
     Listitem *tmp;
@@ -202,4 +222,27 @@ void getNamebyPid (List *ilist, pid_t pid, char * found) {
     }
     strcpy(found,"");
     return;
+}
+
+
+pid_t change_item_name (List *ilist, char *name, char * newname){
+    Listitem *ptr;
+    Listitem *tmp;
+    pid_t found = -1;
+    if (!ilist->head) return -1;
+    ptr = ilist->head;
+    if(strcmp(ptr->pname, name) == 0) {
+        found = ptr->pid;
+        strcpy(ptr->pname, newname);
+        return found;
+    }
+    while (ptr->next != 0) {
+        if(strcmp((ptr->next)->pname, name) == 0) {
+            found = (ptr->next)->pid;
+            strcpy((ptr->next)->pname, newname);
+            return found;
+        }
+        ptr = ptr -> next;
+    }
+    return -1;
 }
