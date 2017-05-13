@@ -4,13 +4,13 @@
 #include <stdlib.h>
 
 
-#define GENERA_MAX_C 100
-#define GENERA_MIN_C 50
+#define GENERA_MAX_C 10000
+#define GENERA_MIN_C 9000
+#define MAXPROCESSI 1000
+
+
 #define NCOMMANDS 9
-#define MAXPROCESSI 30
-#define STRLEN 10
-
-
+#define STRLEN 100
 
 char        commands[NCOMMANDS][STRLEN]; // lista comandi
 float       prob[NCOMMANDS]; // probabilità lancio comando
@@ -27,14 +27,14 @@ float       extr[NCOMMANDS];
 void setProb() {
     float AMP = 1.3;
     float amp = 0.5;
-    prob[0] = MAXPROCESSI/2*amp;       // phelp
-    prob[1] = MAXPROCESSI/2*amp;       // plist
+    prob[0] = MAXPROCESSI/2*amp *0;       // phelp
+    prob[1] = MAXPROCESSI/2*amp *0.1;       // plist
     prob[2] = MAXPROCESSI - p_open;    // pnew
-    prob[3] = p_open*amp;              // pinfo
+    prob[3] = p_open*amp *0.1;              // pinfo
     prob[4] = p_open * AMP;            // pclose
     prob[5] = p_open*amp;              // pspawn
     prob[6] = p_open * AMP;            // prmall
-    prob[7] = p_open*amp;              // ptree
+    prob[7] = p_open*amp * 0.01;              // ptree
     prob[8] = 0;                       // quit
 }
 

@@ -4,12 +4,12 @@
 CC = gcc
 CFLAGS =
 
-BUILD_DIR = build
-FILE_LIST = list.h list.c main.c
+BUILD_DIR = src/build
+FILE_LIST = src/list.h src/list.c src/main.c
 EXEC_NAME = pmanager
 
-ASSETS_DIR = assets
-DATA_FILE_LIST = datagen.c
+ASSETS_DIR = src/assets
+DATA_FILE_LIST = src/datagen.c
 DATA_EXEC_NAME = datagen
 DATAFILE_NAME = data.txt
 
@@ -17,14 +17,16 @@ help:
 	@echo "\nGRUPPO:\n"
 	@echo "Luca Scotton 178801,"
 	@echo "Pietro Bolcato 178601,"
-	@echo "Daniele Del Sale,"
+	@echo "Daniele Del Sale ,"
 	@echo "Giulio Marcon\n"
-	@echo "UTILIZZO: make [opzione]\nOPZIONI:\n\thelp\n\tclean\n\tbuild\n\tassets\n\ttest"
+	@echo "Desc\n\n"
+	@echo "UTILIZZO: make [opzione]\nOPZIONI:\n  help\n  clean\n  build\n  assets\n  test"
 
 clean:
 	@echo "Pulizia..."
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(ASSETS_DIR)
+	@echo "Pulizia completata"
 
 build: clean
 	@echo "Creazione build directory..."
