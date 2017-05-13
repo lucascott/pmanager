@@ -5,9 +5,10 @@ gestione casi limite/eccezioni
 aggiungere matricole makefile
 togliere printf debug
 disegnare albero fatto bene
-stampare maggiori info su azioni in esecuzione
+stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
 formattare bene la tabella della plist
+formattare bene la tabella della phelp
 
 eventualmente disporre su piu files
 

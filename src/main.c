@@ -38,6 +38,7 @@ int isCommandWithParam(char * str) {
     }
     return 0;
 }
+
 void print_list(){
     printf("%d processi figli attivi\n", length(processi));
     printf("PID\t NAME\t PPID\n=====================\n");
@@ -55,6 +56,16 @@ void getMyPid(char * mystrpid) {
     sprintf(mystrpid,"%d",getpid());
 }
 
+int alphanumeric(char * str){
+    int i = 0;
+    while(isalnum(str[i])) {
+        i++;
+    }
+    if(i == (strlen(str)))
+        return 1;
+    else
+        return 0;
+}
 
 
 static void handler (int signo) { //, siginfo_t *siginfo, void *context
@@ -166,7 +177,10 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
     }
     // FATTO -- maggiori info in console
     else if (arg_counter == 2 && strcmp(words[0],"pnew") == 0){
-        new_process(words[1]);
+        if (alphanumeric(words[1]))
+            new_process(words[1]);
+        else
+            printf("Il nome del processo deve essere alfanumerico\n");
     }
     // FATTO
     else if (arg_counter == 2 && strcmp(words[0],"pinfo") == 0){
