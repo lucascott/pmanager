@@ -1,0 +1,14 @@
+pnew a
+pnew b
+pnew c
+pspawn b
+pspawn a
+pspawn a_1
+pspawn a_1
+pspawn b_1
+pspawn a_1
+pspawn a_1_1
+plist
+prmall a
+plist
+quit
