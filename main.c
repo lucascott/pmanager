@@ -128,7 +128,7 @@ void new_process(char *nome){
         }
     }
     else{
-        insertfront(&processi, pid, nome, ppid);
+        insertback(&processi, pid, nome, ppid);
     }
 }
 
@@ -142,6 +142,11 @@ void info_process(char *nome){
 void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
     pid_t temp = change_item_name(&processi, nome, "XXX");
     kill(temp, SIGKILL);
+}
+
+void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
+    printf("Chiusura albero processi di %s...\n", nome);
+    rmallrec(&processi, nome);
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
@@ -186,7 +191,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                     char * ris [MAX_ARGS];
                     int arg_ris;
                     tokenize(readbuffer_c, ris, &arg_ris);
-                    insertfront(&processi, atoi(ris[0]), ris[1], p);
+                    insertback(&processi, atoi(ris[0]), ris[1], p);
                 }
                 fflush(stdout);
             } while (nbytes_c == -1);
@@ -194,16 +199,17 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         }
 
     }
-    //
+    // FATTO
     else if (arg_counter == 2 && strcmp(words[0],"pclose") == 0){
         printf("Chiedo al processo %s di chiudersi\n", words[1]);
         kill_process(words[1]);
     }
+    //
     else if (arg_counter == 2 && strcmp(words[0],"prmall") == 0){
-        printf("NON DISPONIBILE - chiude processo e eventuali cloni\n");
+        rmall_process(words[1]);
     }
     else if (arg_counter == 1 && strcmp(words[0],"ptree") == 0){
-        printf("NON DISPONIBILE - mostra la gerarchia completa dei processi generati attivi\n" );
+        printf("NON DISPONIBILE - albero\n");
     }
     else if (arg_counter == 1 && strcmp(words[0],"quit") == 0){
         killAll(&processi);

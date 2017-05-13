@@ -17,7 +17,7 @@ struct list {
 typedef struct list List;
 
 
-
+pid_t killbyppid(List *ilist, pid_t ppid);
 pid_t removebyname(List *ilist, char *name);
 void printlist(List ilist);
 void initlist (List *);              /* initialize an empty list */
@@ -32,4 +32,6 @@ pid_t getPPidbyName (List *ilist, char *name);
 int killAll(List *);
 void getNamebyPid (List *ilist, pid_t pid, char * found);
 pid_t change_item_name (List *ilist, char *name, char * newname);
+void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec);
+int rmallrec(List *ilist, char *name);
 #endif  /* _LIST_H */
