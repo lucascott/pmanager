@@ -47,4 +47,4 @@ test: assets
 
 exec: assets
 	@echo "Esecuzione pmanager... -------------------------------------------------------------------"
-	$(BUILD_DIR)/$(EXEC_NAME) comandi.txt
+	$(BUILD_DIR)/$(EXEC_NAME)

@@ -96,8 +96,7 @@ int rmallrec(List *ilist, char *name){
     return 0;
 }
 
-void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec)
-{
+void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec){
     if (elemento->ppid == pid)
     {
         printf("Analizzando elemento: %s (pid: %d, ppid: %d)\n", elemento->pname, elemento->pid, elemento->ppid);
@@ -118,6 +117,35 @@ void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec)
         printf("Salto elemento: %s (pid: %d, ppid: %d)\n", elemento->pname, elemento->pid, elemento->ppid);
         if (elemento->next != 0){
             rmallrecchild(elemento->next, pid, elemento);
+        }
+    }
+
+
+}
+
+
+void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
+    if (elemento->ppid == pid)
+    {
+        int i;
+        for(i=0; i < p; i++){
+            printf("   ");
+        }
+        printf("%s\n", elemento->pname);
+        if (elemento->next != 0){
+            //printf("richiamo su succ %s\n",(elemento->next)->pname);
+            treerecchild(elemento->next,elemento->pid, p+1,p); // cerco e killo i figli
+            treerecchild(elemento->next, pid, p,p);
+
+            //printf("richiamo su prec succ %s\n",(prec->next)->pname);
+            //rmallrecchild(prec->next, pid, prec);
+        }
+        //printf("%s - next: %s\n", prec->pname, (prec->next)->pname);
+    }
+    else{
+        //printf("Salto elemento: %s (pid: %d, ppid: %d)\n", elemento->pname, elemento->pid, elemento->ppid);
+        if (elemento->next != 0){
+            treerecchild(elemento->next, pid, p,p);
         }
     }
 

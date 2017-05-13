@@ -1,1 +1,8 @@
-nome duplicato processi
+gestione casi limite/eccezioni
+aggiungere matricole makefile
+togliere printf debug
+disegnare albero fatto bene
+stampare maggiori info su azioni in esecuzione
+aggiungere grado profondità elemento nel pinfo
+
+CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
