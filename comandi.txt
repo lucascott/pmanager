@@ -9,5 +9,5 @@ pspawn b_1
 pspawn a_1
 pspawn a_1_1
 plist
-prmall a
-plist
+ptree
+quit

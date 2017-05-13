@@ -149,12 +149,18 @@ void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
     rmallrec(&processi, nome);
 }
 
+void tree_process(){
+    printf("Albero processi:\n");
+    treerecchild(processi.head, getpid(),0,0);
+    printf("\n" );
+}
+
 void esegui(char *words[MAX_ARGS], int arg_counter) {
     // FATTO
     if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
         printf("\nComandi disponibili:\nphelp​ : stampa un elenco dei comandi disponibili\nplist​ : elenca i processi generati dalla shell custom\npnew <nome>​ : crea un nuovo processo con nome <nome>\npinfo <nome>​ : fornisce informazioni sul processo <nome>\npclose <nome>​ : chiede al processo <nome> di chiudersi\npspawn <nome>: chiede al processo <nome> di clonarsi creando <nome_i> con i progressivo\nprmall <nome>: chiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree: mostra la gerarchia completa dei processi generati attivi\nquit​ : esce dalla shell custom\n\n");
     }
-    // FATTO -- formattazione fatta bene
+    // FATTO
     else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){
         print_list();
     }
@@ -204,13 +210,15 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         printf("Chiedo al processo %s di chiudersi\n", words[1]);
         kill_process(words[1]);
     }
-    //
+    // FATTO
     else if (arg_counter == 2 && strcmp(words[0],"prmall") == 0){
         rmall_process(words[1]);
     }
+    // FATTO
     else if (arg_counter == 1 && strcmp(words[0],"ptree") == 0){
-        printf("NON DISPONIBILE - albero\n");
+        tree_process();
     }
+    // FATTO
     else if (arg_counter == 1 && strcmp(words[0],"quit") == 0){
         killAll(&processi);
         exit(0);
