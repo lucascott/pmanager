@@ -11,4 +11,3 @@ pspawn a_1_1
 plist
 prmall a
 plist
-quit

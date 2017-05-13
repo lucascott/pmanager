@@ -71,7 +71,7 @@ int rmallrec(List *ilist, char *name){
     Listitem * ptr = ilist->head;
     if(ptr->pid == pid && ptr->next == 0) { // elemento in testa lista vuota
         ilist->head = 0;
-        kill(pid, SIGKILL);
+        kill(pid, SIGTERM);
         free(ptr);
         return 0;
     }
@@ -79,7 +79,7 @@ int rmallrec(List *ilist, char *name){
 
         rmallrecchild(ptr->next,pid,ptr);
         ilist->head = ptr->next;
-        kill(pid, SIGKILL);
+        kill(pid, SIGTERM);
         free(ptr);
     }
     else {
@@ -90,7 +90,7 @@ int rmallrec(List *ilist, char *name){
         printf("pid trovato: %d (%s)\n", tmp->pid, tmp->pname);
         rmallrecchild(tmp->next,pid,tmp);
         ptr->next = tmp->next;
-        kill(tmp->pid, SIGKILL);
+        kill(tmp->pid, SIGTERM);
         free(tmp);
     }
     return 0;
@@ -187,7 +187,7 @@ pid_t removebyname(List *ilist, char *name) {
         found = ptr->pid;
         pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
         printf("figli di %d = %d\n",found, res );
-        kill(found, SIGKILL);
+        kill(found, SIGTERM);
         free(ptr);
         return found;
     }
@@ -196,7 +196,7 @@ pid_t removebyname(List *ilist, char *name) {
             found = (ptr->next)->pid;
             pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
             printf("figli di %d = %d\n",found, res );
-            kill(found, SIGKILL);
+            kill(found, SIGTERM);
             tmp = ptr->next;
             ptr->next = tmp->next;
             free(tmp);
@@ -218,7 +218,7 @@ pid_t killbyppid(List *ilist, pid_t ppid) {
         found = ptr->pid;
         pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
         printf("figli di %d = %d\n",found, res );
-        kill(found, SIGKILL);
+        kill(found, SIGTERM);
         free(ptr);
         return found;
     }
@@ -227,7 +227,7 @@ pid_t killbyppid(List *ilist, pid_t ppid) {
             found = (ptr->next)->pid;
             pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
             printf("figli di %d = %d\n",found, res );
-            kill(found, SIGKILL);
+            kill(found, SIGTERM);
             tmp = ptr->next;
             ptr->next = tmp->next;
             free(tmp);
@@ -251,7 +251,7 @@ pid_t removebyname(List *ilist, char *name) {
         found = ptr->pid;
         pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
         printf("figli di %d = %d\n",found, res );
-        kill(found, SIGKILL);
+        kill(found, SIGTERM);
         free(ptr);
         return found;
     }
@@ -260,7 +260,7 @@ pid_t removebyname(List *ilist, char *name) {
             found = (ptr->next)->pid;
             pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
             printf("figli di %d = %d\n",found, res );
-            kill(found, SIGKILL);
+            kill(found, SIGTERM);
             tmp = ptr->next;
             ptr->next = tmp->next;
             free(tmp);
@@ -282,7 +282,7 @@ pid_t killbyppid(List *ilist, pid_t ppid) {
         found = ptr->pid;
         pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
         printf("figli di %d = %d\n",found, res );
-        kill(found, SIGKILL);
+        kill(found, SIGTERM);
         free(ptr);
         return found;
     }
@@ -291,7 +291,7 @@ pid_t killbyppid(List *ilist, pid_t ppid) {
             found = (ptr->next)->pid;
             pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
             printf("figli di %d = %d\n",found, res );
-            kill(found, SIGKILL);
+            kill(found, SIGTERM);
             tmp = ptr->next;
             ptr->next = tmp->next;
             free(tmp);
@@ -348,14 +348,14 @@ int killAll(List *ilist) {
     if (!ilist->head) return -1;
     ptr = ilist->head;
     ilist->head = 0;
-    kill(ptr->pid, SIGKILL);
+    kill(ptr->pid, SIGTERM);
     while (ptr->next != 0) {
         tmp = ptr->next;
         free(ptr);
         ptr->next = tmp->next;
 
         ptr = tmp;
-        kill(ptr->pid, SIGKILL);
+        kill(ptr->pid, SIGTERM);
     }
     free (ptr);
     return 1;
