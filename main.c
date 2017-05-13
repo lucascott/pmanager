@@ -141,7 +141,7 @@ void info_process(char *nome){
 
 void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
     pid_t temp = change_item_name(&processi, nome, "XXX");
-    kill(temp, SIGKILL);
+    kill(temp, SIGTERM);
 }
 
 void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
