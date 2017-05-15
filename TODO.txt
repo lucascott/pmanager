@@ -1,4 +1,4 @@
-ORDINARE DICHIARAZIONI LIST.H
+ORDINARE E AGGIUNGERE DICHIARAZIONI MANCANTI LIST.H
 
 cambiare descrizione prog + matricole makefile
 gestione casi limite/eccezioni

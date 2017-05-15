@@ -145,8 +145,9 @@ void chiamacomando(){
         strcat(comando, processi[r2]);
         printf("\t%s\n", comando);
     }
-    else
-    printf("%s\n", comando);
+    else if (r != -1){
+        printf("%s\n", comando);
+    }
 }
 
 int main(){
@@ -177,7 +178,7 @@ int main(){
         //printf("==========\n");
     }
 
-    // TESTTTTTTTTTT
+    // TEST FUNCTION
     //test();
 
     {
