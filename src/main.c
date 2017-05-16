@@ -87,11 +87,10 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
                 printf("Failed to fork clone process\n");
                 exit(1);
             }
-        else if (tpid == 0) { // processo clone del figlio cicla all'infinito
-            // crea l'handler per segnali di clonazione
-            //signal(SIGUSR1,handler);
+        else if (tpid == 0) { // processo clone del figlio
+            counter = 0;
+            
             printf("HANDLED, entrato nel clone...\n");
-
             fflush(stdout);
         }
         else {// processo padre "figlio del padre"

@@ -126,7 +126,8 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
     {
         int i;
         for(i=0; i < p; i++){
-            printf("   ");
+            if (i == p-1) printf("+-- ");
+            else printf("│   ");
         }
         printf("%s\n", elemento->pname);
         if (elemento->next != 0){
