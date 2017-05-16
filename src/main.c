@@ -171,7 +171,7 @@ void tree_process(){
 void esegui(char *words[MAX_ARGS], int arg_counter) {
     // FATTO
     if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
-        printf("\nComandi disponibili:\nphelp​ : stampa un elenco dei comandi disponibili\nplist​ : elenca i processi generati dalla shell custom\npnew <nome>​ : crea un nuovo processo con nome <nome>\npinfo <nome>​ : fornisce informazioni sul processo <nome>\npclose <nome>​ : chiede al processo <nome> di chiudersi\npspawn <nome>: chiede al processo <nome> di clonarsi creando <nome_i> con i progressivo\nprmall <nome>: chiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree: mostra la gerarchia completa dei processi generati attivi\nquit​ : esce dalla shell custom\n\n");
+        printf("\nComandi disponibili:\n\nphelp​:\t\tstampa un elenco dei comandi disponibili\nplist​:\t\telenca i processi generati dalla shell custom\npnew [arg]:\tcrea un nuovo processo con nome <arg>\npinfo [arg]​:\tfornisce informazioni sul processo <arg>\npclose [arg]:\tchiede al processo <arg> di chiudersi\npspawn [arg]:\tchiede al processo <arg> di clonarsi creando <arg_i> con 'i' progressivo\nprmall [arg]:\tchiede al processo <arg> di chiudersi chiudendo anche eventuali cloni\nptree:\t\tmostra la gerarchia completa dei processi generati attivi\nquit​:\t\tesce dalla shell custom\n\n");
     }
     // FATTO
     else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){

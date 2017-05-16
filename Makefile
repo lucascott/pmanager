@@ -14,13 +14,14 @@ DATA_EXEC_NAME = datagen
 DATAFILE_NAME = data.txt
 
 help:
-	@echo "\nGRUPPO:\n"
-	@echo "Luca Scotton 178801,"
-	@echo "Pietro Bolcato 178601,"
-	@echo "Daniele Del Sale 180369,"
-	@echo "Giulio Marcon 178633\n"
-	@echo "Gestore di processi a interfaccia shell con supporto a creazione, terminazione, visualizzazioneinformazioni e clonazione di processi.\n\n"
-	@echo "UTILIZZO: make [opzione]\nOPZIONI:\n  help: visualizza questo messaggio\n  clean: rimuove le directory generate dal programma\n  build: genera l'eseguibile del programma\n  assets: genera directory con i files di supporto\n  test: esegue il programma in modalità test"
+	@echo "\nGRUPPO:"
+	@echo " Luca Scotton (178801)"
+	@echo " Pietro Bolcato (178601)"
+	@echo " Daniele Del Sale (180369)"
+	@echo " Giulio Marcon (178633)\n"
+	@echo "DESCRIZIONE: Gestore di processi a interfaccia shell con supporto a creazione, terminazione, visualizzazione informazioni e clonazione di processi.\n"
+	@echo "UTILIZZO: make [opzione]\n"
+	@echo "OPZIONI:\n  help: visualizza questo messaggio\n  clean: rimuove le directory generate dal programma\n  build: genera l'eseguibile del programma\n  assets: genera directory con i files di supporto\n  test: esegue il programma in modalità test\n"
 
 clean:
 	@echo "Pulizia..."
