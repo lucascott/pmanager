@@ -41,7 +41,7 @@ int isCommandWithParam(char * str) {
 
 void print_list(){
     printf("%d processi figli attivi\n", length(processi));
-    printf("PID\t NAME\t PPID\n=====================\n");
+    printf("PID\t NAME           \t PPID\n========================================\n");
     printlist(processi);
 }
 void tokenize(char * line, char ** tokens, int *argc){
@@ -89,7 +89,7 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
             }
         else if (tpid == 0) { // processo clone del figlio
             counter = 0;
-            
+
             printf("HANDLED, entrato nel clone...\n");
             fflush(stdout);
         }

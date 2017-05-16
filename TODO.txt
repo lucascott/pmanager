@@ -4,7 +4,6 @@ gestione casi limite/eccezioni
 togliere printf debug
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
-formattare bene la tabella della plist
 formattare bene la tabella della phelp
 ottimizzare get ppidbyname
 
@@ -13,3 +12,4 @@ eventualmente disporre su piu files
 CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
 
 disegnare albero fatto bene (DONE)
+formattare bene la tabella della plist (DONE)
