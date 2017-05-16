@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <sys/prctl.h>
+//#include <prctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include "list.h"
@@ -145,7 +145,7 @@ void new_process(char *nome){
 
 void info_process(char *nome){
     pid_t pid = getPidbyName(&processi, nome);
-    pid_t ppid = getPPidbyName(&processi, nome);
+    pid_t ppid = getPPidbyName(&processi, nome); //può essere ottimizzato perchè così scorre due volte la lista
     printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
 
 }

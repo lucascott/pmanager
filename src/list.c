@@ -119,10 +119,7 @@ void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec){
             rmallrecchild(elemento->next, pid, elemento);
         }
     }
-
-
 }
-
 
 void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
     if (elemento->ppid == pid)
@@ -148,49 +145,6 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
             treerecchild(elemento->next, pid, p,p);
         }
     }
-
-
-}
-
-/*void setitem(List *ilist, int n, int val){
-/// modifies a value
-// assume length is at least n long
-Listitem *ptr;
-int count = 0;
-if (!ilist->head) return;
-ptr = ilist->head;
-for (count = 0;count < n;count ++)
-{
-if (ptr) ptr = ptr->next;
-else return;
-}
-if (ptr)
-ptr->data = val;
-}*/
-
-Listitem getitem(List ilist, int n) {
-    /* returns a list value,
-    * assume length is at least n long */
-    Listitem *ptr;
-    Listitem temp;
-    temp.pid = -1;
-    int count = 0;
-    if (!ilist.head) return temp;
-    ptr = ilist.head;
-    if (n==0) {
-        temp = *ptr;
-        return temp;
-    }
-    while (ptr->next) {
-        ptr = ptr->next;
-        count++;
-        if (n == count)
-        {
-            temp = *ptr;
-            return temp;
-        }
-    }
-    return temp;
 }
 
 void printlist(List ilist) {
@@ -203,138 +157,12 @@ void printlist(List ilist) {
     }
     printf("%d\t %s\t %d\n",ptr->pid,ptr->pname, ptr->ppid);
 }
-/*
-pid_t removebyname(List *ilist, char *name) {
-    Listitem *ptr;
-    Listitem *tmp;
-    pid_t found = -1;
-    if (!ilist->head) return -1;
-    ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
-        ilist->head = ptr->next;
-        found = ptr->pid;
-        pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
-        printf("figli di %d = %d\n",found, res );
-        kill(found, SIGTERM);
-        free(ptr);
-        return found;
-    }
-    while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
-            found = (ptr->next)->pid;
-            pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
-            printf("figli di %d = %d\n",found, res );
-            kill(found, SIGTERM);
-            tmp = ptr->next;
-            ptr->next = tmp->next;
-            free(tmp);
-            return found;
-        }
-        ptr = ptr -> next;
-    }
-    return -1;
-}
-
-pid_t killbyppid(List *ilist, pid_t ppid) {
-    Listitem *ptr;
-    Listitem *tmp;
-    pid_t found = -1;
-    if (!ilist->head) return -1;
-    ptr = ilist->head;
-    if(ptr->ppid == ppid) {
-        ilist->head = ptr->next;
-        found = ptr->pid;
-        pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
-        printf("figli di %d = %d\n",found, res );
-        kill(found, SIGTERM);
-        free(ptr);
-        return found;
-    }
-    while (ptr->next != 0) {
-        if((ptr->next)->ppid == ppid) {
-            found = (ptr->next)->pid;
-            pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
-            printf("figli di %d = %d\n",found, res );
-            kill(found, SIGTERM);
-            tmp = ptr->next;
-            ptr->next = tmp->next;
-            free(tmp);
-            return found;
-        }
-        ptr = ptr -> next;
-    }
-    return -1;
-}
-
-*/
-
-pid_t removebyname(List *ilist, char *name) {
-    Listitem *ptr;
-    Listitem *tmp;
-    pid_t found = -1;
-    if (!ilist->head) return -1;
-    ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
-        ilist->head = ptr->next;
-        found = ptr->pid;
-        pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
-        printf("figli di %d = %d\n",found, res );
-        kill(found, SIGTERM);
-        free(ptr);
-        return found;
-    }
-    while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
-            found = (ptr->next)->pid;
-            pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
-            printf("figli di %d = %d\n",found, res );
-            kill(found, SIGTERM);
-            tmp = ptr->next;
-            ptr->next = tmp->next;
-            free(tmp);
-            return found;
-        }
-        ptr = ptr -> next;
-    }
-    return -1;
-}
-
-pid_t killbyppid(List *ilist, pid_t ppid) {
-    Listitem *ptr;
-    Listitem *tmp;
-    pid_t found = -1;
-    if (!ilist->head) return -1;
-    ptr = ilist->head;
-    if(ptr->ppid == ppid) {
-        ilist->head = ptr->next;
-        found = ptr->pid;
-        pid_t res = killbyppid(ilist, ptr->pid); // uccide i figli
-        printf("figli di %d = %d\n",found, res );
-        kill(found, SIGTERM);
-        free(ptr);
-        return found;
-    }
-    while (ptr->next != 0) {
-        if((ptr->next)->ppid == ppid) {
-            found = (ptr->next)->pid;
-            pid_t res = killbyppid(ilist, (ptr->next)->pid); // uccide i figli
-            printf("figli di %d = %d\n",found, res );
-            kill(found, SIGTERM);
-            tmp = ptr->next;
-            ptr->next = tmp->next;
-            free(tmp);
-            return found;
-        }
-        ptr = ptr -> next;
-    }
-    return -1;
-}
 
 pid_t getPidbyName (List *ilist, char *name) {
     Listitem *ptr;
     Listitem *tmp;
     pid_t found = -1;
-    if (!ilist->head) return -1;
+    if (!ilist->head) return -1;    //non trovato
     ptr = ilist->head;
     if(strcmp(ptr->pname, name) == 0) {
         found = ptr->pid;
@@ -354,7 +182,7 @@ pid_t getPPidbyName (List *ilist, char *name) {
     Listitem *ptr;
     Listitem *tmp;
     int found = -1;
-    if (!ilist->head) return -1;
+    if (!ilist->head) return -1;    //non trovato
     ptr = ilist->head;
     if(strcmp(ptr->pname, name) == 0) {
         found = ptr->ppid;
@@ -388,33 +216,6 @@ int killAll(List *ilist) {
     free (ptr);
     return 1;
 }
-
-
-void getNamebyPid (List *ilist, pid_t pid, char * found) {
-    Listitem *ptr;
-    Listitem *tmp;
-    if (!ilist->head){
-        strcpy(found,"");
-        return;
-    }
-    ptr = ilist->head;
-    if(ptr->pid == pid) {
-        printf("trovato %s\n",  ptr->pname );
-        strcpy(found, ptr->pname);
-        return;
-    }
-    while (ptr->next != 0) {
-        if(ptr->pid == pid) {
-            printf("trovato %s\n", (ptr->next)->pname );
-            strcpy(found, (ptr->next)->pname);
-            return;
-        }
-        ptr = ptr -> next;
-    }
-    strcpy(found,"");
-    return;
-}
-
 
 pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *ptr;

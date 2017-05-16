@@ -9,6 +9,7 @@ stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
 formattare bene la tabella della plist
 formattare bene la tabella della phelp
+ottimizzare get ppidbyname
 
 eventualmente disporre su piu files
 
