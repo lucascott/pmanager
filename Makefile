@@ -17,10 +17,10 @@ help:
 	@echo "\nGRUPPO:\n"
 	@echo "Luca Scotton 178801,"
 	@echo "Pietro Bolcato 178601,"
-	@echo "Daniele Del Sale ,"
-	@echo "Giulio Marcon\n"
-	@echo "Desc\n\n"
-	@echo "UTILIZZO: make [opzione]\nOPZIONI:\n  help\n  clean\n  build\n  assets\n  test"
+	@echo "Daniele Del Sale 180369,"
+	@echo "Giulio Marcon 178633\n"
+	@echo "Gestore di processi a interfaccia shell con supporto a creazione, terminazione, visualizzazioneinformazioni e clonazione di processi.\n\n"
+	@echo "UTILIZZO: make [opzione]\nOPZIONI:\n  help: visualizza questo messaggio\n  clean: rimuove le directory generate dal programma\n  build: genera l'eseguibile del programma\n  assets: genera directory con i files di supporto\n  test: esegue il programma in modalità test"
 
 clean:
 	@echo "Pulizia..."
@@ -37,13 +37,13 @@ build: clean
 assets: build
 	@echo "Creazione assets directory..."
 	@mkdir -p $(ASSETS_DIR)
-
-test: assets
-	@echo "\n\t[Esecuzione in modalità test]\n"
 	@echo "Compilazione generatore dinamico in corso..."
 	$(CC) $(CFLAGS) -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
 	@echo "Creazione dinamica file input in corso..."
 	$(ASSETS_DIR)/$(DATA_EXEC_NAME) > $(ASSETS_DIR)/$(DATAFILE_NAME)
+
+test: assets
+	@echo "\n\t[Esecuzione in modalità test]\n"
 	@echo "Esecuzione pmanager in modalità test..."
 	$(BUILD_DIR)/$(EXEC_NAME) $(ASSETS_DIR)/$(DATAFILE_NAME)
 
