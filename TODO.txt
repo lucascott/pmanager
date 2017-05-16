@@ -1,6 +1,8 @@
 ORDINARE E AGGIUNGERE DICHIARAZIONI MANCANTI LIST.H
 
-gestione casi limite/eccezioni
+gestione casi limite/eccezioni (ONGOING)
+	controllo univocità nome processo(DONE)
+
 togliere printf debug
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo

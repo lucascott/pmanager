@@ -125,20 +125,23 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 
 void new_process(char *nome){
-    printf("Creazione del processo %s\n", nome);
-    pid_t pid = fork();
-    pid_t ppid = getpid();
-    if (pid < 0) {
-        printf("Failed to fork process\n");
-        exit(1);
-    }
-    else if (pid == 0){ // PROCESSO FIGLIO
-        while(1){
-            sleep(-1);
+    if (getPidbyName(&processi, nome) != -1) printf("Processo %s già presente, comando ignorato\n", nome);
+    else {
+        printf("Creazione del processo %s\n", nome);
+        pid_t pid = fork();
+        pid_t ppid = getpid();
+        if (pid < 0) {
+           printf("Failed to fork process\n");
+           exit(1);
         }
-    }
-    else{
-        insertback(&processi, pid, nome, ppid);
+        else if (pid == 0){ // PROCESSO FIGLIO
+            while(1){
+                sleep(-1);
+            }
+        }
+        else{
+            insertback(&processi, pid, nome, ppid);
+        }
     }
 }
 
