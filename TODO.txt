@@ -2,7 +2,6 @@ ORDINARE E AGGIUNGERE DICHIARAZIONI MANCANTI LIST.H
 
 gestione casi limite/eccezioni
 togliere printf debug
-disegnare albero fatto bene
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
 formattare bene la tabella della plist
@@ -11,5 +10,6 @@ ottimizzare get ppidbyname
 
 eventualmente disporre su piu files
 
-
 CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
+
+disegnare albero fatto bene (DONE)
