@@ -2,15 +2,10 @@
 gestione casi limite/eccezioni
 
 togliere printf debug
+comando non esistente
+troppi/troppo pochi argomenti
+colore rosso su errori
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
 
 CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
-
-disegnare albero fatto bene (DONE)
-formattare bene la tabella della plist (DONE)
-ORDINARE E AGGIUNGERE DICHIARAZIONI MANCANTI LIST.H (DONE)
-eventualmente disporre su piu files (DONE)
-formattare bene la tabella della phelp (DONE)
-ottimizzare get ppidbyname (DONE)
-controllo univocità nome processo(DONE)
