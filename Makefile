@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS =
 
 BUILD_DIR = src/build
-FILE_LIST = src/list.h src/list.c src/main.c
+FILE_LIST = src/list.h src/list.c src/utils.h src/utils.c src/main.c
 EXEC_NAME = pmanager
 
 ASSETS_DIR = src/assets
@@ -49,5 +49,5 @@ test: assets
 	$(BUILD_DIR)/$(EXEC_NAME) $(ASSETS_DIR)/$(DATAFILE_NAME)
 
 exec: assets
-	@echo "Esecuzione pmanager... -------------------------------------------------------------------"
+	@echo "Esecuzione pmanager..."
 	$(BUILD_DIR)/$(EXEC_NAME)
