@@ -2,9 +2,9 @@
 gestione casi limite/eccezioni
 
 togliere printf debug
-comando non esistente
+comando non esistente (DONE)
 troppi/troppo pochi argomenti
-colore rosso su errori
+colore rosso su errori (DONE)
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
 

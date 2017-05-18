@@ -3,7 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-//#include <prctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include "list.h"
@@ -14,6 +13,9 @@
 
 #define READ 0
 #define WRITE 1
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 // lista dei processi
 List processi;
@@ -117,14 +119,14 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 void new_process(char *nome){
     if (getPidbyName(&processi, nome) != -1){
-        printf("Processo %s già presente. Comando ignorato...\n", nome);
+        printf(ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n" ANSI_COLOR_RESET, nome);
     }
     else {
         printf("Creazione del processo %s\n", nome);
         pid_t pid = fork();
         pid_t ppid = getpid();
         if (pid < 0) {
-           printf("Clonazione processo non riuscita...\n");
+           printf(ANSI_COLOR_RED "Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
            exit(-1);
         }
         else if (pid == 0){ // PROCESSO FIGLIO
@@ -145,7 +147,7 @@ void info_process(char *nome){
     pid_t pid, ppid;
     getInfos(&processi, nome, &pid, &ppid);
     if (pid == -1 && ppid == -1){
-        printf("Processo %s inesistente. Comando ignorato...\n", nome);
+        printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
         printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
@@ -155,7 +157,7 @@ void info_process(char *nome){
 void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
     pid_t temp = change_item_name(&processi, nome, "XXX");
     if (temp == -1){
-        printf("Processo %s inesistente. Comando ignorato...\n", nome);
+        printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
         kill(temp, SIGTERM);
@@ -165,7 +167,7 @@ void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
 
 void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
     if (getPidbyName(&processi, nome) != -1){
-        printf("Processo %s già presente. Comando ignorato...\n", nome);
+        printf(ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
         printf("Chiusura albero processi di %s...\n", nome);
@@ -193,7 +195,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         if (alphanumeric(words[1]))
             new_process(words[1]);
         else
-            printf("Il nome del processo deve essere alfanumerico\n");
+            printf(ANSI_COLOR_RED"Il nome del processo deve essere alfanumerico\n"ANSI_COLOR_RESET);
     }
     // FATTO
     else if (arg_counter == 2 && strcmp(words[0],"pinfo") == 0){
@@ -216,7 +218,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
             signal(SIGUSR1,handler);
             int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
             if (nbytes_c == -1) {
-                printf("Clonazione processo non riuscita...\n");
+                printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
                 exit(-1);
             }
             //printf("risposta child: %s\n", readbuffer_c);
@@ -245,5 +247,8 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
     else if (arg_counter == 1 && strcmp(words[0],"quit") == 0){
         killAll(&processi);
         exit(0);
+    }
+    else {
+        printf(ANSI_COLOR_RED "Comando non riconosciuto."ANSI_COLOR_RESET" Digita \"phelp\" per la lista dei comandi disponibili.\n");
     }
 }
