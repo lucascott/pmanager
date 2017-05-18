@@ -83,11 +83,10 @@ int rmallrec(List *ilist, char *name){
         free(ptr);
     }
     else {
-        while ((ptr->next)-> pid != pid  && (ptr->next) != 0) {
+        while ((ptr->next) != 0 && (ptr->next)-> pid != pid) {
             ptr = ptr->next;
         }
         Listitem * tmp = ptr->next;
-        printf("pid trovato: %d (%s)\n", tmp->pid, tmp->pname);
         rmallrecchild(tmp->next,pid,tmp);
         ptr->next = tmp->next;
         kill(tmp->pid, SIGTERM);
@@ -99,25 +98,17 @@ int rmallrec(List *ilist, char *name){
 void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec){
     if (elemento->ppid == pid)
     {
-        printf("Analizzando elemento: %s (pid: %d, ppid: %d)\n", elemento->pname, elemento->pid, elemento->ppid);
         if (elemento->next != 0){
-            printf("richiamo su succ %s\n",(elemento->next)->pname);
-            rmallrecchild(elemento->next, pid, elemento);
             rmallrecchild(elemento->next,elemento->pid, elemento); // cerco e killo i filgi
-
-            //printf("richiamo su prec succ %s\n",(prec->next)->pname);
-            //rmallrecchild(prec->next, pid, prec);
+            rmallrecchild(elemento->next, pid, elemento);
         }
+        printf("Chiusura figlio %s (pid: %d)\n", elemento->pname, elemento->pid);
         kill(elemento->pid, SIGTERM);
         prec->next = elemento->next;
-        //printf("%s - next: %s\n", prec->pname, (prec->next)->pname);
         free(elemento);
     }
-    else{
-        printf("Salto elemento: %s (pid: %d, ppid: %d)\n", elemento->pname, elemento->pid, elemento->ppid);
-        if (elemento->next != 0){
-            rmallrecchild(elemento->next, pid, elemento);
-        }
+    else if (elemento->next != 0){
+        rmallrecchild(elemento->next, pid, elemento);
     }
 }
 
@@ -131,20 +122,12 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
         }
         printf("%s\n", elemento->pname);
         if (elemento->next != 0){
-            //printf("richiamo su succ %s\n",(elemento->next)->pname);
             treerecchild(elemento->next,elemento->pid, p+1,p); // cerco e killo i figli
             treerecchild(elemento->next, pid, p,p);
-
-            //printf("richiamo su prec succ %s\n",(prec->next)->pname);
-            //rmallrecchild(prec->next, pid, prec);
         }
-        //printf("%s - next: %s\n", prec->pname, (prec->next)->pname);
     }
-    else{
-        //printf("Salto elemento: %s (pid: %d, ppid: %d)\n", elemento->pname, elemento->pid, elemento->ppid);
-        if (elemento->next != 0){
-            treerecchild(elemento->next, pid, p,p);
-        }
+    else if (elemento->next != 0){
+        treerecchild(elemento->next, pid, p,p);
     }
 }
 
