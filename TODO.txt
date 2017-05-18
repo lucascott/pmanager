@@ -1,15 +1,9 @@
 
-
-gestione casi limite/eccezioni (ONGOING)
-controllo univocità nome processo(DONE)
+gestione casi limite/eccezioni
 
 togliere printf debug
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
-
-ottimizzare get ppidbyname
-
-
 
 CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
 
@@ -18,3 +12,5 @@ formattare bene la tabella della plist (DONE)
 ORDINARE E AGGIUNGERE DICHIARAZIONI MANCANTI LIST.H (DONE)
 eventualmente disporre su piu files (DONE)
 formattare bene la tabella della phelp (DONE)
+ottimizzare get ppidbyname (DONE)
+controllo univocità nome processo(DONE)
