@@ -8,6 +8,7 @@
 
 void initlist(List *ilist) {
     ilist->head = 0;
+    ilist->tail = 0;
 }
 
 void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
@@ -18,26 +19,24 @@ void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
     newitem->pid = pid;
     newitem->ppid = ppid;
     ilist->head = newitem;
+    if (ilist->tail == 0) ilist->tail = ilist->head;
 }
 
 void insertback(List *ilist, pid_t pid, char *name, pid_t ppid) {
-    Listitem *ptr;
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     strcpy((newitem->pname), name);
     newitem->pid = pid;
     newitem->ppid = ppid;
     newitem->next = 0;
-    if (!ilist->head) {
-    ilist->head = newitem;
-    return;
+    if (ilist->tail == 0) {
+        ilist->head = newitem;
+        ilist->tail = newitem;
     }
-    ptr = ilist->head;
-    while (ptr->next)
-    {
-    ptr = ptr->next;
+    else {
+        ilist->tail->next = newitem;
+        ilist->tail = newitem;
     }
-    ptr->next = newitem;
 }
 
 int length(List ilist){      /* returns list length */
@@ -45,23 +44,24 @@ int length(List ilist){      /* returns list length */
     int count = 1;
     if (!ilist.head) return 0;
     ptr = ilist.head;
-    while (ptr->next)  {
+    while (ptr->next) {
         ptr = ptr->next;
         count++;
     }
     return count;
 }
 
-void destroy(List *ilist) {          /* deletes list */
+void destroy(List *ilist) {
     Listitem *ptr1,*ptr2;
-    if (!ilist->head) return;  /* nothing to destroy */
-    ptr1 = ilist->head;        /* destroy one by one */
+    if (!ilist->head) return;
+    ptr1 = ilist->head;
     while (ptr1)  {
         ptr2 = ptr1;
         ptr1 = ptr1->next;
         free(ptr2);
     }
     ilist->head = 0;
+    ilist->tail = 0;
 }
 
 int rmallrec(List *ilist, char *name){
@@ -69,15 +69,16 @@ int rmallrec(List *ilist, char *name){
     pid_t pid = getPidbyName(ilist,name);
     printf("Chiusura %s (pid: %d)\n",name, pid );
     Listitem * ptr = ilist->head;
-    if(ptr->pid == pid && ptr->next == 0) { // elemento in testa lista vuota
+    if(ptr->pid == pid && ptr->next == 0) { // elemento in testa
         ilist->head = 0;
+        ilist->tail = 0;
         kill(pid, SIGTERM);
         free(ptr);
         return 0;
     }
     else if(ptr->pid == pid) { // elemento in testa
 
-        rmallrecchild(ptr->next,pid,ptr);
+        rmallrecchild(ilist,ptr->next,pid,ptr);
         ilist->head = ptr->next;
         kill(pid, SIGTERM);
         free(ptr);
@@ -87,7 +88,12 @@ int rmallrec(List *ilist, char *name){
             ptr = ptr->next;
         }
         Listitem * tmp = ptr->next;
-        rmallrecchild(tmp->next,pid,tmp);
+        if (tmp->next == 0){ // se l'item da rimuovere è l'ultimo sposto il tail
+            ilist->tail = ptr;
+        }
+        else{
+            rmallrecchild(ilist, tmp->next,pid,tmp);
+        }
         ptr->next = tmp->next;
         kill(tmp->pid, SIGTERM);
         free(tmp);
@@ -95,12 +101,15 @@ int rmallrec(List *ilist, char *name){
     return 0;
 }
 
-void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec){
+void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec){
     if (elemento->ppid == pid)
     {
         if (elemento->next != 0){
-            rmallrecchild(elemento->next,elemento->pid, elemento); // cerco e killo i filgi
-            rmallrecchild(elemento->next, pid, elemento);
+            rmallrecchild(ilist, elemento->next,elemento->pid, elemento); // cerco e killo i filgi
+            rmallrecchild(ilist, elemento->next, pid, elemento);
+        }
+        else{
+            ilist->tail = prec;
         }
         printf("Chiusura figlio %s (pid: %d)\n", elemento->pname, elemento->pid);
         kill(elemento->pid, SIGTERM);
@@ -108,7 +117,7 @@ void rmallrecchild(Listitem *elemento, pid_t pid, Listitem *prec){
         free(elemento);
     }
     else if (elemento->next != 0){
-        rmallrecchild(elemento->next, pid, elemento);
+        rmallrecchild(ilist, elemento->next, pid, elemento);
     }
 }
 
@@ -188,6 +197,7 @@ int killAll(List *ilist) {
     if (!ilist->head) return -1;
     ptr = ilist->head;
     ilist->head = 0;
+    ilist->tail = 0;
     kill(ptr->pid, SIGTERM);
     while (ptr->next != 0) {
         tmp = ptr->next;
