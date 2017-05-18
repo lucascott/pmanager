@@ -39,15 +39,15 @@ assets: build
 	@echo "Creazione assets directory..."
 	@mkdir -p $(ASSETS_DIR)
 	@echo "Compilazione generatore dinamico in corso..."
-	$(CC) $(CFLAGS) -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
+	@$(CC) $(CFLAGS) -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
 	@echo "Creazione dinamica file input in corso..."
-	$(ASSETS_DIR)/$(DATA_EXEC_NAME) > $(ASSETS_DIR)/$(DATAFILE_NAME)
+	@$(ASSETS_DIR)/$(DATA_EXEC_NAME) > $(ASSETS_DIR)/$(DATAFILE_NAME)
 
 test: assets
 	@echo "\n\t[Esecuzione in modalità test]\n"
-	@echo "Esecuzione pmanager in modalità test..."
-	$(BUILD_DIR)/$(EXEC_NAME) $(ASSETS_DIR)/$(DATAFILE_NAME)
+	@echo "Esecuzione pmanager in modalità test...\n"
+	@$(BUILD_DIR)/$(EXEC_NAME) $(ASSETS_DIR)/$(DATAFILE_NAME)
 
 exec: assets
-	@echo "Esecuzione pmanager..."
-	$(BUILD_DIR)/$(EXEC_NAME)
+	@echo "Esecuzione pmanager...\n"
+	@$(BUILD_DIR)/$(EXEC_NAME)

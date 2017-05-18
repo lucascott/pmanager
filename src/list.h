@@ -28,7 +28,7 @@ void rmallrecchild(List *ilist, Listitem *elemento, pid_t pid, Listitem *prec);
 void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec);
 void printlist(List ilist);
 pid_t getPidbyName (List *ilist, char *name);
-pid_t getPPidbyName (List *ilist, char *name);
+void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid);
 int killAll(List *ilist);
 pid_t change_item_name (List *ilist, char *name, char * newname);
 

@@ -19,11 +19,11 @@
 List processi;
 
 // pipe (proc. figlio -> padre)
-int         fc[2], nbytes_c;
+int         fc[2];
 char		readbuffer_c[80];
 
 // pipe (proc. figlio -> padre)
-int         fn[2], nbytes_n;
+int         fn[2];
 char        readbuffer_n[80];
 
 // contatore processi cloni generati (solo per figli)
@@ -74,27 +74,19 @@ int alphanumeric(char * str){
 void handler (int signo) { //, siginfo_t *siginfo, void *context
     if (signo == SIGUSR1) {
         //printf("%d received clone signal USR1\n", getpid());
-        nbytes_n = -1;
-        do {
-            nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
-            //printf("letto...\n" );
-            //fflush(stdout);
-            if (nbytes_n != -1){
-                //printf("nome dal main: %s\n", readbuffer_n);
-            }
-            fflush(stdout);
-        }while(nbytes_n == -1);
 
+        int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
+        if (nbytes_n == -1) {
+            printf("Clonazione processo non riuscita...\n");
+            exit(-1);
+        }
         pid_t tpid = fork();
         if (tpid < 0) {
-                printf("Clonazione non riuscita...\n");
-                exit(1);
-            }
+            printf("Clonazione processo non riuscita...\n");
+            exit(-1);
+        }
         else if (tpid == 0) { // processo clone del figlio
             counter = 0;
-
-            //printf("HANDLED, entrato nel clone...\n");
-            //fflush(stdout);
         }
         else {// processo padre "figlio del padre"
             counter++; // aumento contatore processi clonati
@@ -124,14 +116,16 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 
 void new_process(char *nome){
-    if (getPidbyName(&processi, nome) != -1) printf("Processo %s già presente, comando ignorato\n", nome);
+    if (getPidbyName(&processi, nome) != -1){
+        printf("Processo %s già presente. Comando ignorato...\n", nome);
+    }
     else {
         printf("Creazione del processo %s\n", nome);
         pid_t pid = fork();
         pid_t ppid = getpid();
         if (pid < 0) {
-           printf("Failed to fork process\n");
-           exit(1);
+           printf("Clonazione processo non riuscita...\n");
+           exit(-1);
         }
         else if (pid == 0){ // PROCESSO FIGLIO
             destroy(&processi); // dealloca la lista dei figli per salvare spazio
@@ -148,26 +142,41 @@ void new_process(char *nome){
 }
 
 void info_process(char *nome){
-    pid_t pid = getPidbyName(&processi, nome);
-    pid_t ppid = getPPidbyName(&processi, nome); //può essere ottimizzato perchè così scorre due volte la lista
-    printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
-
+    pid_t pid, ppid;
+    getInfos(&processi, nome, &pid, &ppid);
+    if (pid == -1 && ppid == -1){
+        printf("Processo %s inesistente. Comando ignorato...\n", nome);
+    }
+    else{
+        printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
+    }
 }
 
 void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
     pid_t temp = change_item_name(&processi, nome, "XXX");
-    kill(temp, SIGTERM);
+    if (temp == -1){
+        printf("Processo %s inesistente. Comando ignorato...\n", nome);
+    }
+    else{
+        kill(temp, SIGTERM);
+        printf("Processo %s chiuso correttamente.\n", nome);
+    }
 }
 
 void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
-    printf("Chiusura albero processi di %s...\n", nome);
-    rmallrec(&processi, nome);
+    if (getPidbyName(&processi, nome) != -1){
+        printf("Processo %s già presente. Comando ignorato...\n", nome);
+    }
+    else{
+        printf("Chiusura albero processi di %s...\n", nome);
+        rmallrec(&processi, nome);
+    }
 }
 
 void tree_process(){
-    printf("Albero processi:\n");
+    printf("\nAlbero processi:\n");
     treerecchild(processi.head, getpid(),0,0);
-    printf("\n" );
+    printf("\n");
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
@@ -197,7 +206,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         pid_t p = getPidbyName(&processi,words[1]);
 
         if (p == -1){
-            printf("Errore processo %s non esistente\n", words[1]);
+            printf("Errore processo %s non esistente. Comando ignorato...\n", words[1]);
         }
         else {
             printf("Clonazione processo %s (pid: %d)\n", words[1], p);
@@ -205,21 +214,17 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
             kill(p,SIGUSR1);
             write(fn[WRITE], words[1],(strlen(words[1])+1));
             signal(SIGUSR1,handler);
-            nbytes_c = -1;
-            do {
-                nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
-                printf("letto...\n" );
-                fflush(stdout);
-                if (nbytes_c != -1){
-                    printf("risposta child: %s\n", readbuffer_c);
-                    char * ris [MAX_ARGS];
-                    int arg_ris;
-                    tokenize(readbuffer_c, ris, &arg_ris);
-                    insertback(&processi, atoi(ris[0]), ris[1], p);
-                }
-                fflush(stdout);
-            } while (nbytes_c == -1);
-
+            int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
+            if (nbytes_c == -1) {
+                printf("Clonazione processo non riuscita...\n");
+                exit(-1);
+            }
+            //printf("risposta child: %s\n", readbuffer_c);
+            char * ris [MAX_ARGS];
+            int arg_ris;
+            tokenize(readbuffer_c, ris, &arg_ris);
+            insertback(&processi, atoi(ris[0]), ris[1], p);
+            //fflush(stdout);
         }
 
     }

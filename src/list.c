@@ -171,24 +171,31 @@ pid_t getPidbyName (List *ilist, char *name) {
     return -1;
 }
 
-pid_t getPPidbyName (List *ilist, char *name) {
+void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid) {
     Listitem *ptr;
     Listitem *tmp;
-    int found = -1;
-    if (!ilist->head) return -1;    //non trovato
+    if (!ilist->head){
+        *pid = -1;
+        *ppid = -1;
+        return;
+    } //non trovato
     ptr = ilist->head;
     if(strcmp(ptr->pname, name) == 0) {
-        found = ptr->ppid;
-        return found;
+        *pid = ptr->pid;
+        *ppid = ptr->ppid;
+        return;
     }
     while (ptr->next != 0) {
         if(strcmp((ptr->next)->pname, name) == 0) {
-            found = (ptr->next)->ppid;
-            return found;
+            *pid = ptr->pid;
+            *ppid = ptr->ppid;
+            return;
         }
         ptr = ptr -> next;
     }
-    return -1;
+    *pid = -1;
+    *ppid = -1;
+    return;
 }
 
 int killAll(List *ilist) {
