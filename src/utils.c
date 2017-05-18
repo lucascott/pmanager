@@ -15,6 +15,21 @@
 #define READ 0
 #define WRITE 1
 
+// lista dei processi
+List processi;
+
+// pipe (proc. figlio -> padre)
+int         fc[2], nbytes_c;
+char		readbuffer_c[80];
+
+// pipe (proc. figlio -> padre)
+int         fn[2], nbytes_n;
+char        readbuffer_n[80];
+
+// contatore processi cloni generati (solo per figli)
+int 		counter = 0;
+
+
 /// FUNZIONI
 int isCommandWithParam(char * str) {
     if (strcmp(str, "pnew") == 0 ||
@@ -56,30 +71,30 @@ int alphanumeric(char * str){
 }
 
 
-static void handler (int signo) { //, siginfo_t *siginfo, void *context
+void handler (int signo) { //, siginfo_t *siginfo, void *context
     if (signo == SIGUSR1) {
-        printf("%d received clone signal USR1\n", getpid());
+        //printf("%d received clone signal USR1\n", getpid());
         nbytes_n = -1;
         do {
             nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
-            printf("letto...\n" );
-            fflush(stdout);
+            //printf("letto...\n" );
+            //fflush(stdout);
             if (nbytes_n != -1){
-                printf("nome dal main: %s\n", readbuffer_n);
+                //printf("nome dal main: %s\n", readbuffer_n);
             }
             fflush(stdout);
         }while(nbytes_n == -1);
 
         pid_t tpid = fork();
         if (tpid < 0) {
-                printf("Failed to fork clone process\n");
+                printf("Clonazione non riuscita...\n");
                 exit(1);
             }
         else if (tpid == 0) { // processo clone del figlio
             counter = 0;
 
-            printf("HANDLED, entrato nel clone...\n");
-            fflush(stdout);
+            //printf("HANDLED, entrato nel clone...\n");
+            //fflush(stdout);
         }
         else {// processo padre "figlio del padre"
             counter++; // aumento contatore processi clonati
@@ -100,13 +115,9 @@ static void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 
             // invio messaggio al padre
-            printf("STRINGA: %s\tPID dc: %d",str, getpid() );
+            //printf("STRINGA: %s\tPID dc: %d",str, getpid() );
             write(fc[WRITE], str,(strlen(str)+1));
-            // DEBUG
-            pid_t main_p = getpid();
-            printf("this process id = %d\n", main_p);
-            // end debug
-            fflush(stdout);
+            //fflush(stdout);
         }
     }
 }
@@ -123,6 +134,7 @@ void new_process(char *nome){
            exit(1);
         }
         else if (pid == 0){ // PROCESSO FIGLIO
+            destroy(&processi); // dealloca la lista dei figli per salvare spazio
             while(1){
                 sleep(-1);
             }
@@ -130,6 +142,8 @@ void new_process(char *nome){
         else{
             insertback(&processi, pid, nome, ppid);
         }
+        printf("Processo %s creato con successo (pid: %d)\n", nome, pid);
+        fflush(stdout);
     }
 }
 
