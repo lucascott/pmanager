@@ -111,8 +111,10 @@ void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec){
         else{
             ilist->tail = prec;
         }
-        printf("Chiusura figlio %s (pid: %d)\n", elemento->pname, elemento->pid);
-        kill(elemento->pid, SIGTERM);
+        if (strcmp(elemento->pname, "XXX")!= 0) {
+            printf("Chiusura figlio %s (pid: %d)\n", elemento->pname, elemento->pid);
+            kill(elemento->pid, SIGTERM);
+        }
         prec->next = elemento->next;
         free(elemento);
     }
