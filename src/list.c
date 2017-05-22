@@ -22,12 +22,13 @@ void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
     if (ilist->tail == 0) ilist->tail = ilist->head;
 }
 
-void insertback(List *ilist, pid_t pid, char *name, pid_t ppid) {
+void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     strcpy((newitem->pname), name);
     newitem->pid = pid;
     newitem->ppid = ppid;
+    strcpy(newitem->pdate,data);
     newitem->next = 0;
     if (ilist->tail == 0) {
         ilist->head = newitem;
@@ -173,7 +174,7 @@ pid_t getPidbyName (List *ilist, char *name) {
     return -1;
 }
 
-void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid) {
+void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
     Listitem *ptr;
     Listitem *tmp;
     if (!ilist->head){
@@ -185,12 +186,14 @@ void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid) {
     if(strcmp(ptr->pname, name) == 0) {
         *pid = ptr->pid;
         *ppid = ptr->ppid;
+        strcpy(data, ptr->pdate);
         return;
     }
     while (ptr->next != 0) {
         if(strcmp((ptr->next)->pname, name) == 0) {
-            *pid = ptr->pid;
-            *ppid = ptr->ppid;
+            *pid = (ptr->next)->pid;
+            *ppid = (ptr->next)->ppid;
+            strcpy(data, (ptr->next)->pdate);
             return;
         }
         ptr = ptr -> next;
