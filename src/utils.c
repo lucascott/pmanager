@@ -176,9 +176,14 @@ void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
 }
 
 void tree_process(){
-    printf("\nAlbero processi:\n");
-    treerecchild(processi.head, getpid(),0,0);
-    printf("\n");
+    if (processi.head == 0) {
+        printf("\nNessun processo attivo.\n\n");
+    }
+    else {
+        printf("\nAlbero processi:\n");
+        treerecchild(processi.head, getpid(),0,0);
+        printf("\n");
+    }
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
