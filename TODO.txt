@@ -1,12 +1,7 @@
 
 gestione casi limite/eccezioni:
     - creo un processo "a" e "a_2" poi clono due volte "a"...
-    - non posso fare pclose e prmall su processi già chiusi (controllo nome != "XXX")
-    - non posso generare processo chiamato "XXX" (oppure modifico struct e metto campo attivo/chiuso)
 togliere printf debug
-comando non esistente (DONE)
-troppi/troppo pochi argomenti
-colore rosso su errori (DONE)
 stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
 aggiungere grado profondità elemento nel pinfo
 pspawn o pclone??
