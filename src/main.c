@@ -15,6 +15,19 @@
 #define READ 0
 #define WRITE 1
 
+extern List processi;
+
+// pipe (proc. figlio -> padre)
+extern int     	fc[2], nbytes_c;
+extern char		readbuffer_c[80];
+
+// pipe (proc. figlio -> padre)
+extern int      fn[2], nbytes_n;
+extern char     readbuffer_n[80];
+
+// contatore processi cloni generati (solo per figli)
+extern int 		counter;
+
 int main(int n_par, char *argv[]){
     int 	argc = 0;
     char    line[MAX_LINE_SIZE];
@@ -25,19 +38,18 @@ int main(int n_par, char *argv[]){
     pipe(fn);
 
     if (signal(SIGUSR1, handler) == SIG_ERR){
-        printf("\ncan't catch SIGUSR1\n");
+        printf("Impossibile catturare il SIGUSR1\n");
     }
-    // DEBUG
-    pid_t main_p = getpid();
-    printf("Main process id = %d\n", main_p);
-    // end debug
 
     // inizializzo lista processi del padre
-    initlist(processi);
+    initlist(&processi);
 
     FILE *ifp;
-    printf("Pmanager run with %d params\n", n_par);
-    if (n_par == 2){ // SE PASSATO IL FILE
+    //printf("Pmanager run with %d params\n", n_par);
+    if (n_par == 2 && access( argv[1], F_OK ) == -1){ // SE IL FILE NON ESISTE (poi avvia in modalità inserimento utente)
+        printf("File \"%s\" non trovato...\n\n",argv[1]);
+    }
+    if (n_par == 2 && access( argv[1], F_OK ) != -1){ // SE PASSATO IL FILE
         ifp = fopen(argv[1], "r");
         if (ifp == NULL) {
             printf("Impossibile aprire \"%s\"...\n",argv[1]);
@@ -52,11 +64,6 @@ int main(int n_par, char *argv[]){
                 strcat(line, temp);
             }
 
-            // DEBUG
-            //char a[10];
-            //scanf("%s", a);
-            //END DEBUG
-
             // tokenizzo il comando passato
             tokenize(line, pch, &argc);
             if(argc == 1)
@@ -64,12 +71,12 @@ int main(int n_par, char *argv[]){
             else
             printf("$> %s %s\n", pch[0],pch[1]);
             // eseguo operazioni richieste
-            esegui(pch, argc, processi);
+            esegui(pch, argc);
         }
     }
     else {
-        while (1 && getpid() == main_p) {
-            // stampo il command prompt
+        printf("PMANAGER: \n");
+        while (1) {
             fflush(stdout); // serve per stampare tutto il buffer prima di dare il controllo alla shell
             printf("$> ");
             // lettura comandi
@@ -79,7 +86,7 @@ int main(int n_par, char *argv[]){
             // tokenizzo il comando passato
             tokenize(line, pch, &argc);
             // eseguo operazioni richieste
-            esegui(pch, argc, processi);
+            esegui(pch, argc);
         }
     }
     return 0;
