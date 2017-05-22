@@ -203,73 +203,95 @@ void tree_process(){
 }
 
 void esegui(char *words[MAX_ARGS], int arg_counter) {
-    // FATTO
-    if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
-        printf("\nComandi disponibili:\n\nphelp​:\t\tstampa un elenco dei comandi disponibili\nplist​:\t\telenca i processi generati dalla shell custom\npnew <nome>:\tcrea un nuovo processo con nome <nome>\npinfo <nome>​:\tfornisce informazioni sul processo <nome>\npclose <nome>:\tchiede al processo <nome> di chiudersi\npspawn <nome>:\tchiede al processo <nome> di clonarsi creando <nome_i> con 'i' progressivo\nprmall <nome>:\tchiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree:\t\tmostra la gerarchia completa dei processi generati attivi\nquit​:\t\tesce dalla shell custom\n\n");
-    }
-    // FATTO
-    else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){
-        print_list();
-    }
-    // FATTO -- maggiori info in console
-    else if (arg_counter == 2 && strcmp(words[0],"pnew") == 0){
-        if (alphanumeric(words[1]))
-            new_process(words[1]);
-        else
-            printf(ANSI_COLOR_RED"Il nome del processo deve essere alfanumerico\n"ANSI_COLOR_RESET);
-    }
-    // FATTO
-    else if (arg_counter == 2 && strcmp(words[0],"pinfo") == 0){
-        info_process(words[1]);
-    }
-    // FATTO
-    else if (arg_counter == 2 && strcmp(words[0],"pspawn") == 0){
-
-        // ottengo pid processo dal nome passato dall'utente
-        pid_t p = getPidbyName(&processi,words[1]);
-
-        if (p == -1){
-            printf("Errore processo %s non esistente. Comando ignorato...\n", words[1]);
+    if (arg_counter != 0) {
+        if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
+            printf("\nComandi disponibili:\n\nphelp​:\t\tstampa un elenco dei comandi disponibili\nplist​:\t\telenca i processi generati dalla shell custom\npnew <nome>:\tcrea un nuovo processo con nome <nome>\npinfo <nome>​:\tfornisce informazioni sul processo <nome>\npclose <nome>:\tchiede al processo <nome> di chiudersi\npspawn <nome>:\tchiede al processo <nome> di clonarsi creando <nome_i> con 'i' progressivo\nprmall <nome>:\tchiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree:\t\tmostra la gerarchia completa dei processi generati attivi\nquit​:\t\tesce dalla shell custom\n\n");
+        }
+        // FATTO
+        else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){
+            print_list();
+        }
+        // FATTO -- maggiori info in console
+        else if (strcmp(words[0],"pnew") == 0){
+            if (arg_counter == 2) {
+                if (alphanumeric(words[1]))
+                    new_process(words[1]);
+                else
+                    printf(ANSI_COLOR_RED"Il nome del processo deve essere alfanumerico\n"ANSI_COLOR_RESET);
+            }
+            else {
+                printf ("Comando errato. Uso corretto: pnew <nome>\n");
+            }
+        }
+        // FATTO
+        else if (strcmp(words[0],"pinfo") == 0){
+            if (arg_counter == 2) {
+                info_process(words[1]);
+            }
+            else {
+                printf ("Comando errato. Uso corretto: pinfo <nome>\n");
+            }
+        }
+        // FATTO
+        else if (strcmp(words[0],"pspawn") == 0){
+            if (arg_counter == 2) {
+                pid_t p = getPidbyName(&processi,words[1]);
+                if (p == -1){
+                    printf("Errore processo %s non esistente. Comando ignorato...\n", words[1]);
+                }
+                else {
+                    printf("Clonazione processo %s (pid: %d)\n", words[1], p);
+                    //mando messaggio a processo che deve clonarsi
+                    kill(p,SIGUSR1);
+                    write(fn[WRITE], words[1],(strlen(words[1])+1));
+                    signal(SIGUSR1,handler);
+                    int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
+                    if (nbytes_c == -1) {
+                        printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
+                        exit(-1);
+                    }
+                    //printf("risposta child: %s\n", readbuffer_c);
+                    char * ris [MAX_ARGS];
+                    int arg_ris;
+                    tokenize(readbuffer_c, ris, &arg_ris);
+                    insertback(&processi, atoi(ris[0]), ris[1], p);
+                    //fflush(stdout);
+                }
+            }
+            else {
+                printf ("Comando errato. Uso corretto: pspawn <nome>\n");
+            }
+        }
+        // FATTO
+        else if (strcmp(words[0],"pclose") == 0){
+            if (arg_counter == 2) {
+                printf("Chiedo al processo %s di chiudersi\n", words[1]);
+                kill_process(words[1]);
+            }
+            else {
+                printf("Comando errato. Uso corretto: pclose <nome>\n");
+            }
+        }
+        // FATTO
+        else if (strcmp(words[0],"prmall") == 0){
+            if (arg_counter == 2) {
+                rmall_process(words[1]);
+            }
+            else {
+                printf("Comando errato. Uso corretto: prmall <nome>\n");
+            }
+        }
+        // FATTO
+        else if (arg_counter == 1 && strcmp(words[0],"ptree") == 0){
+            tree_process();
+        }
+        // FATTO
+        else if (arg_counter == 1 && strcmp(words[0],"quit") == 0){
+            killAll(&processi);
+            exit(0);
         }
         else {
-            printf("Clonazione processo %s (pid: %d)\n", words[1], p);
-            //mando messaggio a processo che deve clonarsi
-            kill(p,SIGUSR1);
-            write(fn[WRITE], words[1],(strlen(words[1])+1));
-            signal(SIGUSR1,handler);
-            int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
-            if (nbytes_c == -1) {
-                printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
-                exit(-1);
-            }
-            //printf("risposta child: %s\n", readbuffer_c);
-            char * ris [MAX_ARGS];
-            int arg_ris;
-            tokenize(readbuffer_c, ris, &arg_ris);
-            insertback(&processi, atoi(ris[0]), ris[1], p);
-            //fflush(stdout);
+            printf("Comando non riconosciuto. Digita \"phelp\" per la lista dei comandi disponibili.\n");
         }
-
-    }
-    // FATTO
-    else if (arg_counter == 2 && strcmp(words[0],"pclose") == 0){
-        printf("Chiedo al processo %s di chiudersi\n", words[1]);
-        kill_process(words[1]);
-    }
-    // FATTO
-    else if (arg_counter == 2 && strcmp(words[0],"prmall") == 0){
-        rmall_process(words[1]);
-    }
-    // FATTO
-    else if (arg_counter == 1 && strcmp(words[0],"ptree") == 0){
-        tree_process();
-    }
-    // FATTO
-    else if (arg_counter == 1 && strcmp(words[0],"quit") == 0){
-        killAll(&processi);
-        exit(0);
-    }
-    else {
-        printf(ANSI_COLOR_RED "Comando non riconosciuto."ANSI_COLOR_RESET" Digita \"phelp\" per la lista dei comandi disponibili.\n");
     }
 }
