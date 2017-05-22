@@ -47,7 +47,7 @@ int main(int n_par, char *argv[]){
     FILE *ifp;
     //printf("Pmanager run with %d params\n", n_par);
     if (n_par == 2 && access( argv[1], F_OK ) == -1){ // SE IL FILE NON ESISTE (poi avvia in modalità inserimento utente)
-        printf("File \"%s\" non trovato...\n",argv[1]);
+        printf("File \"%s\" non trovato...\n\n",argv[1]);
     }
     if (n_par == 2 && access( argv[1], F_OK ) != -1){ // SE PASSATO IL FILE
         ifp = fopen(argv[1], "r");

@@ -41,7 +41,7 @@ assets: build
 	@echo "Compilazione generatore dinamico in corso..."
 	@$(CC) $(CFLAGS) -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
 	@echo "Creazione dinamica file input in corso..."
-	@$(ASSETS_DIR)/$(DATA_EXEC_NAME) > $(ASSETS_DIR)/$(DATAFILE_NAME)
+	@$(ASSETS_DIR)/$(DATA_EXEC_NAME) >$(ASSETS_DIR)/$(DATAFILE_NAME)
 
 test: assets
 	@echo "\n\t[Esecuzione in modalità test]\n"
