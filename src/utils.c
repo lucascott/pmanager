@@ -118,7 +118,10 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 
 void new_process(char *nome){
-    if (getPidbyName(&processi, nome) != -1){
+    if (strcmp(nome, "XXX")== 0) {
+        printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
+    }
+    else if (getPidbyName(&processi, nome) != -1){
         printf(ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n" ANSI_COLOR_RESET, nome);
     }
     else {
@@ -144,29 +147,42 @@ void new_process(char *nome){
 }
 
 void info_process(char *nome){
-    pid_t pid, ppid;
-    getInfos(&processi, nome, &pid, &ppid);
-    if (pid == -1 && ppid == -1){
-        printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+    if (strcmp(nome, "XXX")== 0) {
+        printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
-    else{
-        printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
+    else {
+        pid_t pid, ppid;
+        getInfos(&processi, nome, &pid, &ppid);
+        if (pid == -1 && ppid == -1){
+            printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+        }
+        else{
+            printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
+        }
     }
 }
 
 void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
-    pid_t temp = change_item_name(&processi, nome, "XXX");
-    if (temp == -1){
-        printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+    if (strcmp(nome, "XXX")== 0) {
+        printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
-    else{
-        kill(temp, SIGTERM);
-        printf("Processo %s chiuso correttamente.\n", nome);
+    else {
+        pid_t temp = change_item_name(&processi, nome, "XXX");
+        if (temp == -1){
+            printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+        }
+        else{
+            kill(temp, SIGTERM);
+            printf("Processo %s chiuso correttamente.\n", nome);
+        }
     }
 }
 
 void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
-    if (getPidbyName(&processi, nome) == -1){
+    if (strcmp(nome, "XXX")== 0) {
+        printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
+    }
+    else if (getPidbyName(&processi, nome) == -1){
         printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
@@ -189,7 +205,7 @@ void tree_process(){
 void esegui(char *words[MAX_ARGS], int arg_counter) {
     // FATTO
     if (arg_counter == 1 && strcmp(words[0],"phelp") == 0){
-        printf("\nComandi disponibili:\n\nphelp​:\t\tstampa un elenco dei comandi disponibili\nplist​:\t\telenca i processi generati dalla shell custom\npnew [arg]:\tcrea un nuovo processo con nome <arg>\npinfo [arg]​:\tfornisce informazioni sul processo <arg>\npclose [arg]:\tchiede al processo <arg> di chiudersi\npspawn [arg]:\tchiede al processo <arg> di clonarsi creando <arg_i> con 'i' progressivo\nprmall [arg]:\tchiede al processo <arg> di chiudersi chiudendo anche eventuali cloni\nptree:\t\tmostra la gerarchia completa dei processi generati attivi\nquit​:\t\tesce dalla shell custom\n\n");
+        printf("\nComandi disponibili:\n\nphelp​:\t\tstampa un elenco dei comandi disponibili\nplist​:\t\telenca i processi generati dalla shell custom\npnew <nome>:\tcrea un nuovo processo con nome <nome>\npinfo <nome>​:\tfornisce informazioni sul processo <nome>\npclose <nome>:\tchiede al processo <nome> di chiudersi\npspawn <nome>:\tchiede al processo <nome> di clonarsi creando <nome_i> con 'i' progressivo\nprmall <nome>:\tchiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree:\t\tmostra la gerarchia completa dei processi generati attivi\nquit​:\t\tesce dalla shell custom\n\n");
     }
     // FATTO
     else if (arg_counter == 1 && strcmp(words[0],"plist") == 0){
