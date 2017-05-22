@@ -166,8 +166,8 @@ void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
 }
 
 void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
-    if (getPidbyName(&processi, nome) != -1){
-        printf(ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+    if (getPidbyName(&processi, nome) == -1){
+        printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
         printf("Chiusura albero processi di %s...\n", nome);
