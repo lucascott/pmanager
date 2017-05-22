@@ -119,14 +119,14 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 void new_process(char *nome){
     if (getPidbyName(&processi, nome) != -1){
-        fprintf(stderr, ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n" ANSI_COLOR_RESET, nome);
+        printf(ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n" ANSI_COLOR_RESET, nome);
     }
     else {
         printf("Creazione del processo %s\n", nome);
         pid_t pid = fork();
         pid_t ppid = getpid();
         if (pid < 0) {
-           fprintf(stderr, ANSI_COLOR_RED "Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
+           printf(ANSI_COLOR_RED "Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
            exit(-1);
         }
         else if (pid == 0){ // PROCESSO FIGLIO

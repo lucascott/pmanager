@@ -50,4 +50,4 @@ test: assets
 
 exec: assets
 	@echo "Esecuzione pmanager...\n"
-	@$(BUILD_DIR)/$(EXEC_NAME) 2>errors.txt
+	@$(BUILD_DIR)/$(EXEC_NAME)
