@@ -129,7 +129,7 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
     {
         int i;
         for(i=0; i < p; i++){
-            if (i == p-1) printf("+-- ");
+            if (i == p-1) printf("└── ");
             else printf("│   ");
         }
         printf("%s\n", elemento->pname);
@@ -148,10 +148,10 @@ void printlist(List ilist) {
     if (!ilist.head) return;
     ptr = ilist.head;
     while (ptr->next != 0) {
-        printf("%d\t %-15s\t %d\n",ptr->pid,ptr->pname, ptr->ppid);
+        printf("%d\t %-15s\t %d\t%s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
         ptr = ptr->next;
     }
-    printf("%d\t %-15s\t %d\n",ptr->pid,ptr->pname, ptr->ppid);
+    printf("%d\t %-15s\t %d\t%s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
 }
 
 pid_t getPidbyName (List *ilist, char *name) {
@@ -214,8 +214,6 @@ int killAll(List *ilist) {
     while (ptr->next != 0) {
         tmp = ptr->next;
         free(ptr);
-        ptr->next = tmp->next;
-
         ptr = tmp;
         kill(ptr->pid, SIGTERM);
     }

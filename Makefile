@@ -48,6 +48,6 @@ test: assets
 	@echo "Esecuzione pmanager in modalità test...\n"
 	@$(BUILD_DIR)/$(EXEC_NAME) $(ASSETS_DIR)/$(DATAFILE_NAME)
 
-exec: assets
+exec: build
 	@echo "Esecuzione pmanager...\n"
 	@$(BUILD_DIR)/$(EXEC_NAME)

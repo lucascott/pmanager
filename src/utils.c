@@ -64,8 +64,8 @@ void getDate(char *data){
 }
 
 void print_list(){
-    printf("%d processi figli attivi\n", length(processi));
-    printf("PID\t NAME           \t PPID\n========================================\n");
+    printf("\t    %d processi figli attivi\n", length(processi));
+    printf("PID\t NAME           \t PPID \tCREATED\n======================================================\n");
     printlist(processi);
 }
 
@@ -99,16 +99,19 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
         //printf("%d received clone signal USR1\n", getpid());
 
         int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
+        fflush(stdout);
         if (nbytes_n == -1) {
             printf("Clonazione processo non riuscita...\n");
             exit(-1);
         }
         pid_t tpid = fork();
+        fflush(stdout);
         if (tpid < 0) {
             printf("Clonazione processo non riuscita...\n");
             exit(-1);
         }
         else if (tpid == 0) { // processo clone del figlio
+            //printf("Clonato...\n");
             counter = 0;
         }
         else {// processo padre "figlio del padre"
