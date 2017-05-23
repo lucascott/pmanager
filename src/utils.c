@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
@@ -31,6 +32,8 @@ char        readbuffer_n[80];
 // contatore processi cloni generati (solo per figli)
 int 		counter = 0;
 
+typedef struct timeval mytime;
+
 
 /// FUNZIONI
 int isCommandWithParam(char * str) {
@@ -44,15 +47,33 @@ int isCommandWithParam(char * str) {
     return 0;
 }
 
+void getDate(char *data){
+	struct timeval tv;
+	struct tm* ptm;
+	long milliseconds;
+
+	/* Obtain the time of day, and convert it to a tm struct. */
+	gettimeofday (&tv, NULL);
+	ptm = localtime (&tv.tv_sec);
+	/* Format the date and time, down to a single second. */
+	strftime (data, 64, "%H:%M:%S", ptm); //%Y-%m-%d to add the date
+	/* Compute milliseconds from microseconds. */
+	milliseconds = tv.tv_usec / 1000;
+	/* Print the formatted time, in seconds, followed by a decimal point and the milliseconds. */
+	sprintf(data, "%s.%03ldms", data, milliseconds);
+}
+
 void print_list(){
-    printf("%d processi figli attivi\n", length(processi));
-    printf("PID\t NAME           \t PPID\n========================================\n");
+    printf("\t    %d processi figli attivi\n", length(processi));
+    printf("PID\t NAME           \t PPID \tCREATED\n======================================================\n");
     printlist(processi);
 }
+
 void tokenize(char * line, char ** tokens, int *argc){
     *argc = 0; // reinizializzo numero parole inserite
     tokens[*argc] = strtok(line," ,.-\n\t");
-    while (tokens[*argc] != NULL) {
+    while (tokens[*argc] != NULL)
+    {
         (*argc)++;
         tokens[*argc] = strtok (NULL, " ,.-\n\t");
     }
@@ -78,16 +99,19 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
         //printf("%d received clone signal USR1\n", getpid());
 
         int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
+        fflush(stdout);
         if (nbytes_n == -1) {
             printf("Clonazione processo non riuscita...\n");
             exit(-1);
         }
         pid_t tpid = fork();
+        fflush(stdout);
         if (tpid < 0) {
             printf("Clonazione processo non riuscita...\n");
             exit(-1);
         }
         else if (tpid == 0) { // processo clone del figlio
+            //printf("Clonato...\n");
             counter = 0;
         }
         else {// processo padre "figlio del padre"
@@ -139,10 +163,13 @@ void new_process(char *nome){
             }
         }
         else{
-            insertback(&processi, pid, nome, ppid);
+            char d[MAX_LINE_SIZE];
+            getDate(d);
+            insertback(&processi, pid, nome, ppid, d);
+            printf("Processo %s creato con successo (pid: %d, ore: %s)\n", nome, pid, d);
+            fflush(stdout);
         }
-        printf("Processo %s creato con successo (pid: %d)\n", nome, pid);
-        fflush(stdout);
+
     }
 }
 
@@ -152,12 +179,13 @@ void info_process(char *nome){
     }
     else {
         pid_t pid, ppid;
-        getInfos(&processi, nome, &pid, &ppid);
+        char d[MAX_LINE_SIZE];
+        getInfos(&processi, nome, &pid, &ppid, d);
         if (pid == -1 && ppid == -1){
             printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
         }
         else{
-            printf("Processo %s (pid: %d, ppid: %d)\n", nome, pid, ppid);
+            printf("Processo %s (pid: %d, ppid: %d, creato alle: %s)\n", nome, pid, ppid, d);
         }
     }
 }
@@ -253,8 +281,10 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                     //printf("risposta child: %s\n", readbuffer_c);
                     char * ris [MAX_ARGS];
                     int arg_ris;
+                    char d[MAX_LINE_SIZE];
+                    getDate(d);
                     tokenize(readbuffer_c, ris, &arg_ris);
-                    insertback(&processi, atoi(ris[0]), ris[1], p);
+                    insertback(&processi, atoi(ris[0]), ris[1], p, d);
                     //fflush(stdout);
                 }
             }

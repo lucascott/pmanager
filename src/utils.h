@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include <sys/types.h>
 //#include <prctl.h>
 #include <signal.h>
@@ -18,6 +19,7 @@
 #define WRITE 1
 
 int isCommandWithParam(char * str);
+void getDate(char *data);
 void print_list();
 void tokenize(char * line, char ** tokens, int *argc);
 void getMyPid(char * mystrpid);
