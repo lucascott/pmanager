@@ -1,0 +1,11 @@
+pnew a
+pnew b
+pnew c
+pspawn a
+pspawn a
+pspawn a_1
+pspawn a_2
+pspawn a_1
+pspawn b
+ptree
+quit
