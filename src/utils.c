@@ -264,7 +264,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
         // FATTO
         else if (strcmp(words[0],"pspawn") == 0){
             if (arg_counter == 2) {
-                pid_t p = getPidbyName(&processi,words[1]);
+                pid_t p = checkDuplicates(&processi,words[1], "clonare");
                 if (p == -1){
                     printf("Errore processo %s non esistente. Comando ignorato...\n", words[1]);
                 }

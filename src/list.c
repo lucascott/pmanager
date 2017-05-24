@@ -71,7 +71,7 @@ void destroy(List *ilist) {
 
 int rmallrec(List *ilist, char *name){
     if (!ilist->head) return -1;
-    pid_t pid = getPidbyName(ilist,name);
+    int pid = checkDuplicates(ilist, name, "terminare a cascata");
     printf("Chiusura %s (pid: %d)\n",name, pid );
     Listitem * ptr = ilist->head;
     if(ptr->pid == pid && ptr->next == 0) { // elemento in testa
@@ -179,6 +179,7 @@ pid_t getPidbyName (List *ilist, char *name) {
 }
 
 void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
+    int res = checkDuplicates(ilist, name, "visualizzare");
     Listitem *ptr;
     Listitem *tmp;
     if (!ilist->head){
@@ -187,17 +188,17 @@ void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
         return;
     } //non trovato
     ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
+    if(ptr->pid == res) {
         *pid = ptr->pid;
         *ppid = ptr->ppid;
-        //strcpy(data, ptr->pdate);
+        strcpy(data, ptr->pdate);
         return;
     }
     while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
+        if((ptr->next)->pid == res) {
             *pid = (ptr->next)->pid;
             *ppid = (ptr->next)->ppid;
-            //strcpy(data, (ptr->next)->pdate);
+            strcpy(data, (ptr->next)->pdate);
             return;
         }
         ptr = ptr -> next;
@@ -225,7 +226,7 @@ int killAll(List *ilist) {
     return 1;
 }
 
-int checkDuplicates(List *ilist, char *name){
+int checkDuplicates(List *ilist, char *name, char *flag){
     Listitem *ptr;
     int t;
     intList temp;
@@ -256,7 +257,7 @@ int checkDuplicates(List *ilist, char *name){
         int len = intlength(temp);
         printf("Rilevati %d processi chiamati \"%s\" aperti:\n", len, name);
         intprintlist(&temp);
-        printf("Inserisci indice processo da terminare:\n");
+        printf("Inserisci indice processo da %s:\n",flag);
 
         do{
             printf("\r>> ");
@@ -274,7 +275,7 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *ptr;
     Listitem *tmp;
     pid_t found;
-    int ref = checkDuplicates(ilist, name);
+    int ref = checkDuplicates(ilist, name, "terminare");
     printf("Pid processo da chiudere= %d\n", ref);
     if (ref == -1) return -1;
     if (!ilist->head) return -1;
@@ -295,6 +296,3 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
     return -1;
 }
 
-pid_t fromNametoPid (List *ilist, char *name) {
-
-}
