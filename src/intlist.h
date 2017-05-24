@@ -13,6 +13,6 @@ void intinitlist (intList *);
 void intinsertback(intList  *, int val);   /* insert val at back */
 int intlength(intList);                    /* returns list length */
 void intdestroy(intList *);                /* deletes list */
-int intgetitem(intList, int n);            /* returns value at n*/
-void intprintlist(intList ilist);
+int intgetitem(intList *ilist, int n);            /* returns value at n*/
+void intprintlist(intList *ilist);
 #endif  /* _INTLIST_H */

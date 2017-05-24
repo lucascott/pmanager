@@ -31,6 +31,7 @@ void printlist(List ilist);
 pid_t getPidbyName (List *ilist, char *name);
 void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data);
 int killAll(List *ilist);
+int checkDuplicates(List *ilist, char *name);
 pid_t change_item_name (List *ilist, char *name, char * newname);
 
 

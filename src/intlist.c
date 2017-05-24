@@ -52,11 +52,11 @@ void intdestroy(intList *ilist) {          /* deletes list */
    ilist->head = 0;
 }
 
-int intgetitem(intList ilist, int n) {
+int intgetitem(intList *ilist, int n) {
    intListitem *ptr;
    int count = 0;
-   if (!ilist.head) return 0;
-   ptr = ilist.head;
+   if (!ilist->head) return 0;
+   ptr = ilist->head;
    if (n==0) return ptr->data;
    while (ptr->next) {
         ptr = ptr->next;
@@ -67,12 +67,12 @@ int intgetitem(intList ilist, int n) {
    return 0;
 }
 
-void intprintlist(intList ilist) {
+void intprintlist(intList *ilist) {
   intListitem *ptr;
   int n;
   int count = 0;
-  if (!ilist.head) return;
-  ptr = ilist.head;
+  if (!ilist->head) return;
+  ptr = ilist->head;
   do {
     n = ptr->data;
     printf("%d: %d\n",count,n);

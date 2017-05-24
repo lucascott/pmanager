@@ -222,19 +222,13 @@ int killAll(List *ilist) {
     return 1;
 }
 
-pid_t change_item_name (List *ilist, char *name, char * newname){
+int checkDuplicates(List *ilist, char *name){
     Listitem *ptr;
-    Listitem *tmp;
-    pid_t found;
-    
-    //da mettere a funzione
-    Listitem *ptr2;
-    Listitem *tmp2;
     int t;
     intList temp;
     intinitlist(&temp);
-    pid_t ref = -1;
-    if (!ilist->head) ref = -1;    //non trovato
+    int ref = -1;
+    if (!ilist->head) ref = -1;
     ptr = ilist->head;
     if (strcmp(ptr->pname, name) == 0) {
         t = (int) ptr->pid;
@@ -251,19 +245,24 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
     }
     if (intlength(temp) == 0) return -1;
     else if (intlength(temp) == 1) {
-        intdestroy(&temp);    
+        intdestroy(&temp);
         ref = t;
     }
     else {
         int n;
         printf("Omonimia rilevata. Inserisci indice processo selezionato\n");
-        intprintlist(temp);
+        intprintlist(&temp);
         scanf("%d",&n);
-        pid_t found2 = intgetitem(temp, n);
-        ref = found2;
+        ref = intgetitem(&temp, n);
     }
-    //da mettere a funzione
+    return ref;
+}
 
+pid_t change_item_name (List *ilist, char *name, char * newname){
+    Listitem *ptr;
+    Listitem *tmp;
+    pid_t found;
+    int ref = checkDuplicates(ilist, name);
     printf("Pid processo da chiudere= %d\n", ref);
     if (ref == -1) return -1;
     if (!ilist->head) return -1;
@@ -285,5 +284,5 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
 }
 
 pid_t fromNametoPid (List *ilist, char *name) {
-    
+
 }
