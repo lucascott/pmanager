@@ -7,6 +7,9 @@
 #include "list.h"
 #include "intlist.h"
 
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 void initlist(List *ilist) {
     ilist->head = 0;
     ilist->tail = 0;
@@ -29,7 +32,7 @@ void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     strcpy((newitem->pname), name);
     newitem->pid = pid;
     newitem->ppid = ppid;
-    //strcpy(newitem->pdate,data);
+    strcpy(newitem->pdate,data);
     newitem->next = 0;
     if (ilist->tail == 0) {
         ilist->head = newitem;
@@ -252,7 +255,14 @@ int checkDuplicates(List *ilist, char *name){
         int n;
         printf("Omonimia rilevata. Inserisci indice processo selezionato\n");
         intprintlist(&temp);
-        scanf("%d",&n);
+        int len = intlength(temp);
+        do{
+            printf("\r>> ");
+            scanf("%d",&n);
+            if (n >= len || n < 0){
+                printf(ANSI_COLOR_RED"Errore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
+            }
+        } while (n >= len || n < 0);
         ref = intgetitem(&temp, n);
     }
     return ref;
