@@ -152,10 +152,10 @@ void printlist(List ilist) {
     if (!ilist.head) return;
     ptr = ilist.head;
     while (ptr->next != 0) {
-        printf("%d\t %-15s\t %d\t\n",ptr->pid,ptr->pname, ptr->ppid);
+        printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
         ptr = ptr->next;
     }
-    printf("%d\t %-15s\t %d\t\n",ptr->pid,ptr->pname, ptr->ppid);
+    printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
 }
 
 pid_t getPidbyName (List *ilist, char *name) {
@@ -253,9 +253,11 @@ int checkDuplicates(List *ilist, char *name){
     }
     else {
         int n;
-        printf("Omonimia rilevata. Inserisci indice processo selezionato\n");
-        intprintlist(&temp);
         int len = intlength(temp);
+        printf("Rilevati %d processi chiamati \"%s\" aperti:\n", len, name);
+        intprintlist(&temp);
+        printf("Inserisci indice processo da terminare:\n");
+
         do{
             printf("\r>> ");
             scanf("%d",&n);

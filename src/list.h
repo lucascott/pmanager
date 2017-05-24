@@ -7,7 +7,7 @@ struct listitem {
         char pname[100];
         pid_t pid;
         pid_t ppid;
-        char pdate[12];
+        char pdate[13];
         struct listitem *next;
 };
 typedef struct listitem Listitem;

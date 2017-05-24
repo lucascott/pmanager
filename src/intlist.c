@@ -75,10 +75,10 @@ void intprintlist(intList *ilist) {
   ptr = ilist->head;
   do {
     n = ptr->data;
-    printf("%d: %d\n",count,n);
+    printf("%d: pid %d\n", count, n);
     count++;
     ptr = ptr-> next;
-  } while(ptr->next != 0);
+  } while (ptr->next != 0);
   n = ptr->data;
-  printf("%d: %d\n",count,n);
+  printf("%d: pid %d\n", count, n);
 }

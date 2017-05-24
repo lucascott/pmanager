@@ -56,7 +56,7 @@ void getDate(char *data){
 	gettimeofday (&tv, NULL);
 	ptm = localtime (&tv.tv_sec);
 	/* Format the date and time, down to a single second. */
-	strftime (data, 64, "%H:%M:%S", ptm); //%Y-%m-%d to add the date
+	strftime (data, 104, "%H:%M:%S", ptm); //%Y-%m-%d to add the date
 	/* Compute milliseconds from microseconds. */
 	milliseconds = tv.tv_usec / 1000;
 	/* Print the formatted time, in seconds, followed by a decimal point and the milliseconds. */
@@ -193,10 +193,10 @@ void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
     else {
-        
+
         printf("%d",(processi.head)->pid);
         pid_t temp = change_item_name(&processi, nome, "XXX");
-        
+
         if (temp == -1){
             printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
         }
