@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS =
 
 BUILD_DIR = src/build
-FILE_LIST = src/list.h src/list.c src/utils.h src/utils.c src/main.c
+FILE_LIST = src/intlist.h src/intlist.c src/list.h src/list.c src/utils.h src/utils.c src/main.c
 EXEC_NAME = pmanager
 
 ASSETS_DIR = src/assets

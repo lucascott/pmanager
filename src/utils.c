@@ -145,15 +145,12 @@ void new_process(char *nome){
     if (strcmp(nome, "XXX")== 0) {
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
-    else if (getPidbyName(&processi, nome) != -1){
-        printf(ANSI_COLOR_RED"Processo %s già presente. Comando ignorato...\n" ANSI_COLOR_RESET, nome);
-    }
     else {
         printf("Creazione del processo %s\n", nome);
         pid_t pid = fork();
         pid_t ppid = getpid();
         if (pid < 0) {
-           printf(ANSI_COLOR_RED "Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
+           printf(ANSI_COLOR_RED "Creazione processo non riuscita...\n"ANSI_COLOR_RESET);
            exit(-1);
         }
         else if (pid == 0){ // PROCESSO FIGLIO

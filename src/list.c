@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include "list.h"
+#include "intlist.h"
 
 void initlist(List *ilist) {
     ilist->head = 0;
@@ -28,7 +29,7 @@ void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     strcpy((newitem->pname), name);
     newitem->pid = pid;
     newitem->ppid = ppid;
-    strcpy(newitem->pdate,data);
+    //strcpy(newitem->pdate,data);
     newitem->next = 0;
     if (ilist->tail == 0) {
         ilist->head = newitem;
@@ -148,10 +149,10 @@ void printlist(List ilist) {
     if (!ilist.head) return;
     ptr = ilist.head;
     while (ptr->next != 0) {
-        printf("%d\t %-15s\t %d\t%s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
+        printf("%d\t %-15s\t %d\t\n",ptr->pid,ptr->pname, ptr->ppid);
         ptr = ptr->next;
     }
-    printf("%d\t %-15s\t %d\t%s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
+    printf("%d\t %-15s\t %d\t\n",ptr->pid,ptr->pname, ptr->ppid);
 }
 
 pid_t getPidbyName (List *ilist, char *name) {
@@ -186,14 +187,14 @@ void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
     if(strcmp(ptr->pname, name) == 0) {
         *pid = ptr->pid;
         *ppid = ptr->ppid;
-        strcpy(data, ptr->pdate);
+        //strcpy(data, ptr->pdate);
         return;
     }
     while (ptr->next != 0) {
         if(strcmp((ptr->next)->pname, name) == 0) {
             *pid = (ptr->next)->pid;
             *ppid = (ptr->next)->ppid;
-            strcpy(data, (ptr->next)->pdate);
+            //strcpy(data, (ptr->next)->pdate);
             return;
         }
         ptr = ptr -> next;
@@ -224,16 +225,19 @@ int killAll(List *ilist) {
 pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *ptr;
     Listitem *tmp;
-    pid_t found = -1;
+    pid_t found;
+    pid_t ref = fromNametoPid(&ilist, name);
+    printf("Pid processo da chiudere= %d", ref);
+    if (ref == -1) return -1;
     if (!ilist->head) return -1;
     ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
+    if(ptr->pid == ref) {
         found = ptr->pid;
         strcpy(ptr->pname, newname);
         return found;
     }
     while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
+        if((ptr->next)->pid == ref) {
             found = (ptr->next)->pid;
             strcpy((ptr->next)->pname, newname);
             return found;
@@ -241,4 +245,38 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
         ptr = ptr -> next;
     }
     return -1;
+}
+
+pid_t fromNametoPid (List *ilist, char *name) {
+    Listitem *ptr;
+    Listitem *tmp;
+    int t;
+    intList temp;
+    intinitlist(&temp);
+    pid_t found = -1;
+    if (!ilist->head) return -1;    //non trovato
+    ptr = ilist->head;
+    if(strcmp(ptr->pname, name) == 0) {
+        t = (int) ptr->pid;
+        intinsertback(&temp, t);
+    }
+    while (ptr->next != 0) {
+        if(strcmp((ptr->next)->pname, name) == 0) {
+            t = (int) (ptr->next)->pid;
+            intinsertback(&temp, t);
+        }
+        ptr = ptr -> next;
+    }
+    if (intlength(temp) == 0) return -1;
+    else if (intlength(temp) == 1) {
+        intdestroy(&temp);
+        return (pid_t) t;
+    }
+    else {
+        int n;
+        printf("Omonimia rilevata. Inserisci indice processo selezionato\n");
+        scanf("%d",&n);
+        found = intgetitem(temp, n);
+        return found;
+    }
 }
