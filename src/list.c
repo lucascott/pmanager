@@ -232,17 +232,17 @@ int checkDuplicates(List *ilist, char *name, char *flag){
     intList temp;
     intinitlist(&temp);
     int ref = -1;
-    if (!ilist->head) ref = -1;
+    if (!ilist->head) {
+        return ref;
+    }
     ptr = ilist->head;
     if (strcmp(ptr->pname, name) == 0) {
         t = (int) ptr->pid;
-        printf("Inserito in lista: %d\n", t);
         intinsertback(&temp, t);
     }
     while (ptr->next != 0) {
         if(strcmp((ptr->next)->pname, name) == 0) {
             t = (int) (ptr->next)->pid;
-            printf("Inserito in lista: %d\n", t);
             intinsertback(&temp, t);
         }
         ptr = ptr -> next;
@@ -276,7 +276,6 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *tmp;
     pid_t found;
     int ref = checkDuplicates(ilist, name, "terminare");
-    printf("Pid processo da chiudere= %d\n", ref);
     if (ref == -1) return -1;
     if (!ilist->head) return -1;
     ptr = ilist->head;
