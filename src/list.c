@@ -226,8 +226,45 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *ptr;
     Listitem *tmp;
     pid_t found;
-    pid_t ref = fromNametoPid(&ilist, name);
-    printf("Pid processo da chiudere= %d", ref);
+    
+    //da mettere a funzione
+    Listitem *ptr2;
+    Listitem *tmp2;
+    int t;
+    intList temp;
+    intinitlist(&temp);
+    pid_t ref = -1;
+    if (!ilist->head) ref = -1;    //non trovato
+    ptr = ilist->head;
+    if (strcmp(ptr->pname, name) == 0) {
+        t = (int) ptr->pid;
+        printf("Inserito in lista: %d\n", t);
+        intinsertback(&temp, t);
+    }
+    while (ptr->next != 0) {
+        if(strcmp((ptr->next)->pname, name) == 0) {
+            t = (int) (ptr->next)->pid;
+            printf("Inserito in lista: %d\n", t);
+            intinsertback(&temp, t);
+        }
+        ptr = ptr -> next;
+    }
+    if (intlength(temp) == 0) return -1;
+    else if (intlength(temp) == 1) {
+        intdestroy(&temp);    
+        ref = t;
+    }
+    else {
+        int n;
+        printf("Omonimia rilevata. Inserisci indice processo selezionato\n");
+        intprintlist(temp);
+        scanf("%d",&n);
+        pid_t found2 = intgetitem(temp, n);
+        ref = found2;
+    }
+    //da mettere a funzione
+
+    printf("Pid processo da chiudere= %d\n", ref);
     if (ref == -1) return -1;
     if (!ilist->head) return -1;
     ptr = ilist->head;
@@ -248,35 +285,5 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
 }
 
 pid_t fromNametoPid (List *ilist, char *name) {
-    Listitem *ptr;
-    Listitem *tmp;
-    int t;
-    intList temp;
-    intinitlist(&temp);
-    pid_t found = -1;
-    if (!ilist->head) return -1;    //non trovato
-    ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
-        t = (int) ptr->pid;
-        intinsertback(&temp, t);
-    }
-    while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
-            t = (int) (ptr->next)->pid;
-            intinsertback(&temp, t);
-        }
-        ptr = ptr -> next;
-    }
-    if (intlength(temp) == 0) return -1;
-    else if (intlength(temp) == 1) {
-        intdestroy(&temp);
-        return (pid_t) t;
-    }
-    else {
-        int n;
-        printf("Omonimia rilevata. Inserisci indice processo selezionato\n");
-        scanf("%d",&n);
-        found = intgetitem(temp, n);
-        return found;
-    }
+    
 }

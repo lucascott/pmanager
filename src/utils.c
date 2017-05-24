@@ -177,6 +177,7 @@ void info_process(char *nome){
     else {
         pid_t pid, ppid;
         char d[MAX_LINE_SIZE];
+        printf("%d",(processi.head)->pid);
         getInfos(&processi, nome, &pid, &ppid, d);
         if (pid == -1 && ppid == -1){
             printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
@@ -192,7 +193,10 @@ void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
     else {
+        
+        printf("%d",(processi.head)->pid);
         pid_t temp = change_item_name(&processi, nome, "XXX");
+        
         if (temp == -1){
             printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
         }
