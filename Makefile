@@ -9,7 +9,7 @@ FILE_LIST = src/intlist.h src/intlist.c src/list.h src/list.c src/utils.h src/ut
 EXEC_NAME = pmanager
 
 ASSETS_DIR = src/assets
-DATA_FILE_LIST = src/datagen.c
+DATA_FILE_LIST = src/datagen.h src/datagen.c
 DATA_EXEC_NAME = datagen
 DATAFILE_NAME = data.txt
 
@@ -39,9 +39,10 @@ assets: build
 	@echo "Creazione assets directory..."
 	@mkdir -p $(ASSETS_DIR)
 	@echo "Compilazione generatore dinamico in corso..."
-	@$(CC) $(CFLAGS) -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
+	@$(CC) $(CFLAGS)  -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
 	@echo "Creazione dinamica file input in corso..."
-	@$(ASSETS_DIR)/$(DATA_EXEC_NAME) >$(ASSETS_DIR)/$(DATAFILE_NAME)
+	@$(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATAFILE_NAME)
+	@mv $(DATAFILE_NAME) ./$(ASSETS_DIR)
 
 test: assets
 	@echo "\n\t[Esecuzione in modalità test]\n"
