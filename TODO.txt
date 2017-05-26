@@ -1,10 +1,4 @@
-
-gestione casi limite/eccezioni:
-    - creo un processo "a" e "a_2" poi clono due volte "a"...
-togliere printf debug
-stampare maggiori info su azioni in esecuzione (vedere parte finale pdf)
-aggiungere grado profondità elemento nel pinfo
-pspawn o pclone??
-aggiungere opzioni nel datagen.c
+trattino basso non è alfanumerico
+controllo inserimento numero su numero processi datagen
 
 CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
