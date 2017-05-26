@@ -147,6 +147,12 @@ void new_process(char *nome){
     }
     else {
         printf("Creazione del processo \"%s\"\n", nome);
+	if (strlen(nome) > 50)
+	{
+		strncpy(nome, nome, 50);
+    		nome[50] = '\0';
+		printf("Nome troppo lungo. Creo \"%s\"\n",nome);
+	}
         pid_t pid = fork();
         pid_t ppid = getpid();
         if (pid < 0) {

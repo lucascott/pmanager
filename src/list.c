@@ -19,7 +19,8 @@ void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     newitem->next = ilist->head;
-    strcpy((newitem->pname), name);
+    strncpy((newitem->pname), name, 50);
+    newitem->pname[50] = '\0';
     newitem->pid = pid;
     newitem->ppid = ppid;
     ilist->head = newitem;
@@ -29,7 +30,8 @@ void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
 void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
-    strcpy((newitem->pname), name);
+    strncpy((newitem->pname), name, sizeof(newitem->pname));
+    newitem->pname[50] = '\0';
     newitem->pid = pid;
     newitem->ppid = ppid;
     strcpy(newitem->pdate,data);
