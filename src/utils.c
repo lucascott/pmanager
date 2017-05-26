@@ -121,9 +121,15 @@ void handler (int signo) {  //handler per SIGUSR1
             strcpy(str,strtpid);
             strcat(str," ");
             strcat(str,readbuffer_n);
-            strcat(str,"_");
-            strcat(str,strcounter);
+            if (strlen(readbuffer_n) < 50)
+            {
+                strcat(str,"_");
+                strcat(str,strcounter);
+            }
+            else
+                printf("Nome clone troppo lungo. Tronco \"_%d\"\n",counter);
 
+            fflush(stdout);
 
             // invio messaggio al padre
             write(fc[WRITE], str,(strlen(str)+1));
@@ -137,12 +143,12 @@ void new_process(char *nome){ //crea un nuovo processo chiamato "nome"
     }
     else {
         printf("Creazione del processo \"%s\"\n", nome); //conferma creazione processo
-	if (strlen(nome) > 50)
-	{
-		strncpy(nome, nome, 50);
-    		nome[50] = '\0';
-		printf("Nome troppo lungo. Creo \"%s\"\n",nome); //avviso troncamento nome
-	}
+    	if (strlen(nome) > 50)
+    	{
+    		strncpy(nome, nome, 50);
+        	nome[50] = '\0';
+    		printf("Nome troppo lungo. Creo \"%s\"\n",nome); //avviso troncamento nome
+    	}
         pid_t pid = fork(); //FORK DEL PROCESSO
         pid_t ppid = getpid(); //ottengo ppid del figlio dal padre
         if (pid < 0) { //gestione errori creazione processo
@@ -170,6 +176,9 @@ void info_process(char *nome){ //stampa informazioni sul processo "nome"
     if (strcmp(nome, "XXX")== 0 || strcmp(nome, "xxx")== 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
+    else if (strlen(nome) > 50) {
+        printf(ANSI_COLOR_RED"Nome processo troppo lungo. Inserisci un nome di massimo 50 caratteri\n"ANSI_COLOR_RESET); //avviso nome troppo lungo
+    }
     else {
         pid_t pid, ppid;
         char d[MAX_LINE_SIZE];
@@ -187,6 +196,9 @@ void kill_process(char* nome){ //chiude il processo "nome"
     if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
+    else if (strlen(nome) > 50) {
+        printf(ANSI_COLOR_RED"Nome processo troppo lungo. Inserisci un nome di massimo 50 caratteri\n"ANSI_COLOR_RESET); //avviso nome troppo lungo
+    }
     else {
         pid_t temp = change_item_name(&processi, nome, "XXX"); //cambio nome processo in XXX (convenzione per processo terminato)
 
@@ -203,6 +215,9 @@ void kill_process(char* nome){ //chiude il processo "nome"
 void rmall_process(char* nome){ //termina a cascata processo "nome" e relativi cloni
     if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
+    }
+    else if (strlen(nome) > 50) {
+        printf(ANSI_COLOR_RED"Nome processo troppo lungo. Inserisci un nome di massimo 50 caratteri\n"ANSI_COLOR_RESET); //avviso nome troppo lungo
     }
     else if (getPidbyName(&processi, nome) == -1){ //gestione processo inesistente
         printf(ANSI_COLOR_RED"Processo \"%s\" inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
@@ -263,7 +278,14 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i c
         }
         else if (strcmp(words[0],"pspawn") == 0){ //esecuzione comando "pspawn" 
             if (arg_counter == 2) { //controllo numero argomenti
-                pid_t p = checkDuplicates(&processi,words[1], "clonare"); //gestisco casi di omonimia
+                if (strlen(words[1]) > 50)
+                {
+                        strncpy(words[1], words[1], 50);
+                        words[1][50] = '\0';
+                        printf("Nome troppo lungo. Uso \"%s\"\n",words[1]); //avviso troncamento nome
+                }
+
+                pid_t p = checkDuplicates(&processi,words[1], "clonare"); //gestisco casi di omonimia5
                 if (p == -1){ //gestione processo da clonare inesistente
                     printf(ANSI_COLOR_RED"Errore processo \"%s\" non esistente. Comando ignorato...\n"ANSI_COLOR_RESET, words[1]);
                 }
