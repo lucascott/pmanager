@@ -64,7 +64,7 @@ void getDate(char *data){
 }
 
 void print_list(){
-    printf("\t    %d processi figli attivi\n", length(processi));
+    printf("\t    %d processi figli attivi\n", numActive(&processi));
     printf("PID\t NAME           \t PPID \tCREATED\n=======================================================\n");
     printlist(processi);
 }

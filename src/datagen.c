@@ -96,28 +96,6 @@ void chiamacomando(){
     int     r2;
 
     normalizeProb();
-
-    /*
-    // DEBUG
-    { // stampa processi
-        int i;
-        for (i = 0; i < MAXPROCESSI; i++) {
-            printf("%d|%s - %d\n",i, processi[i], proc_aperto[i]);
-        }
-        printf("==========\n");
-    }
-
-
-    {
-        int i;
-        for (i = 0; i < NCOMMANDS; i++){
-            printf("c: %s\t%f\n", commands[i],prob[i] );
-            extr[i] = 0;
-        }
-    }
-    // END DEBUG
-    */
-
     r = pickOne();
     strcpy(comando, commands[r]);
     strcat(comando, " ");

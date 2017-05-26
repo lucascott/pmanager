@@ -226,6 +226,21 @@ int killAll(List *ilist) {
     return 1;
 }
 
+int myIsDigit(char *str){
+    int i;
+    int len = strlen(str);
+    if (atoi(str)){
+        return 1;
+    }
+    for (i = 0; i < len; i++){
+        char c = str[i]; 
+        if(!isdigit(c)){
+            return 0;
+        }
+    }
+    return 1;
+}
+
 int checkDuplicates(List *ilist, char *name, char *flag){
     Listitem *ptr;
     int t;
@@ -253,20 +268,31 @@ int checkDuplicates(List *ilist, char *name, char *flag){
         ref = t;
     }
     else {
-        int n;
+        char n[10];
         int len = intlength(temp);
         printf("Rilevati %d processi chiamati \"%s\" aperti:\n", len, name);
         intprintlist(&temp);
         printf("Inserisci indice processo da %s:\n",flag);
-
+        int valid = 0;
+        int num = -1;
         do{
             printf("\r>> ");
-            scanf("%d",&n);
-            if (n >= len || n < 0){
-                printf(ANSI_COLOR_RED"Errore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
+            scanf("%s",&n);
+            fflush(stdin);
+            if (!myIsDigit(n)){
+                printf(ANSI_COLOR_RED"Errore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET );
             }
-        } while (n >= len || n < 0);
-        ref = intgetitem(&temp, n);
+            else {
+                num = atoi(n);
+                if (num >= len || num < 0){
+                    printf(ANSI_COLOR_RED"Errore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
+                }
+                else{
+                    valid = 1;
+                }
+            }
+        } while (!valid);
+        ref = intgetitem(&temp, num);
     }
     return ref;
 }
@@ -295,3 +321,19 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
     return -1;
 }
 
+int numActive(List *ilist) {
+    Listitem *ptr;
+    int count = 0;
+    if (!ilist->head) return 0;
+    ptr = ilist->head;
+    if (strcmp((ptr->pname), "XXX") != 0) {
+        count++;
+    }
+    while (ptr->next) {
+        ptr = ptr->next;
+        if (strcmp((ptr->pname), "XXX") != 0) {
+            count++;
+        }
+    }
+    return count;
+}
