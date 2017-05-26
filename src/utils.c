@@ -9,34 +9,31 @@
 #include "list.h"
 #include "utils.h"
 
+//DEFINIZIONE FUNZIONI
 #define MAX_ARGS 256
 #define MAX_LINE_SIZE 1024
 
 #define READ 0
 #define WRITE 1
 
+//COLORE ERRORI SHELL
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-// lista dei processi
-List processi;
+List processi; //dichiarazione lista processi
 
-// pipe (proc. figlio -> padre)
+int counter = 0; //contatore processi cloni generati (solo per figli)
+
+//PIPE (proc. figlio -> padre)
 int         fc[2];
 char		readbuffer_c[80];
 
-// pipe (proc. figlio -> padre)
+//PIPE (proc. padre -> figlio)
 int         fn[2];
 char        readbuffer_n[80];
 
-// contatore processi cloni generati (solo per figli)
-int 		counter = 0;
-
-typedef struct timeval mytime;
-
-
-/// FUNZIONI
-int isCommandWithParam(char * str) {
+//FUNZIONI
+int isCommandWithParam(char * str) { //controlla se il comando str richiede parametri
     if (strcmp(str, "pnew") == 0 ||
     strcmp(str, "pinfo") == 0 ||
     strcmp(str, "pclose") == 0 ||
@@ -47,57 +44,54 @@ int isCommandWithParam(char * str) {
     return 0;
 }
 
-void getDate(char *data){
+void getDate(char *data){ //salva la data e l'ora su data
 	struct timeval tv;
 	struct tm* ptm;
 	long milliseconds;
 
-	/* Obtain the time of day, and convert it to a tm struct. */
-	gettimeofday (&tv, NULL);
+	//ottiene il tempo e lo converte in una struct tm
+	gettimeofday (&tv, NULL); 
 	ptm = localtime (&tv.tv_sec);
-	/* Format the date and time, down to a single second. */
-	strftime (data, 104, "%H:%M:%S", ptm); //%Y-%m-%d to add the date
-	/* Compute milliseconds from microseconds. */
-	milliseconds = tv.tv_usec / 1000;
-	/* Print the formatted time, in seconds, followed by a decimal point and the milliseconds. */
-	sprintf(data, "%s.%03ldms", data, milliseconds);
+
+	strftime (data, 104, "%H:%M:%S", ptm); //formatta la data e l'ora fino ai secondi
+	milliseconds = tv.tv_usec / 1000; //calcola i millisecondi partendo dai microsecondi
+	sprintf(data, "%s.%03ldms", data, milliseconds); //stampa la data e il tempo in secondi seguito da virgola e millisecondi
 }
 
-void print_list(){
-    printf("\t    %d processi figli attivi\n", numActive(&processi));
+void print_list(){ //stampa la lista processi
+    printf("\t    %d processi figli attivi\n", numActive(&processi)); //stampa numero processi attivi
     printf("PID\t NAME           \t PPID \tCREATED\n=======================================================\n");
-    printlist(processi);
+    printlist(processi); //invoca la funzione che stampa la lista
 }
 
-void tokenize(char * line, char ** tokens, int *argc){
-    *argc = 0; // reinizializzo numero parole inserite
-    tokens[*argc] = strtok(line," \n\t");
-    while (tokens[*argc] != NULL)
+void tokenize(char * line, char ** tokens, int *argc){ //divide la stringa in singole parole
+    *argc = 0; //inizializzo numero parole inserite
+    tokens[*argc] = strtok(line," \n\t"); //itilizzo strtok per troncare la stringa al primo spazio 
+    while (tokens[*argc] != NULL) //itero tutti gli argomenti
     {
         (*argc)++;
         tokens[*argc] = strtok (NULL, " \n\t");
     }
 }
-void getMyPid(char * mystrpid) {
+
+void getMyPid(char * mystrpid) { //salva in mystrpid il PID del processo che invoca la funzione
     sprintf(mystrpid,"%d",getpid());
 }
 
-int alphanumeric(char * str){
+int alphanumeric(char * str){ //controlla che la stringa str sia alfanumerica
     int i = 0;
-    while(isalnum(str[i])) {
+    while(isalnum(str[i])) { //finchè trovo caratteri alfanumerici proseguo
         i++;
     }
-    if(i == (strlen(str)))
+    if(i == (strlen(str))) //se ho scorso tutta la lista ritorno TRUE, altrimenti FALSE
         return 1;
     else
         return 0;
 }
 
 
-void handler (int signo) { //, siginfo_t *siginfo, void *context
+void handler (int signo) {  //handler SIGUSR1 -- COMMENTARE
     if (signo == SIGUSR1) {
-        //printf("%d received clone signal USR1\n", getpid());
-
         int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
         fflush(stdout);
         if (nbytes_n == -1) {
@@ -136,124 +130,122 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
         }
     }
 }
+//FINE COMMENTARE
 
-
-void new_process(char *nome){
-    if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) {
+void new_process(char *nome){ //crea un nuovo processo chiamato "nome"
+    if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
     else {
-        printf("Creazione del processo \"%s\"\n", nome);
+        printf("Creazione del processo \"%s\"\n", nome); //conferma creazione processo
 	if (strlen(nome) > 50)
 	{
 		strncpy(nome, nome, 50);
     		nome[50] = '\0';
-		printf("Nome troppo lungo. Creo \"%s\"\n",nome);
+		printf("Nome troppo lungo. Creo \"%s\"\n",nome); //avviso troncamento nome
 	}
-        pid_t pid = fork();
-        pid_t ppid = getpid();
-        if (pid < 0) {
+        pid_t pid = fork(); //FORK DEL PROCESSO
+        pid_t ppid = getpid(); //ottengo ppid del figlio dal padre
+        if (pid < 0) { //gestione errori creazione processo
            printf(ANSI_COLOR_RED "Creazione processo non riuscita...\n"ANSI_COLOR_RESET);
-           exit(-1);
+           exit(-1); //termine programma in caso di errore
         }
-        else if (pid == 0){ // PROCESSO FIGLIO
-            destroy(&processi); // dealloca la lista dei figli per salvare spazio
+        else if (pid == 0){ //PROCESSO FIGLIO
+            destroy(&processi); //dealloca la lista dei figli per risparmiare memoria
             while(1){
-                sleep(-1);
+                sleep(-1); //metto il processo in loop di attesa infinito
             }
         }
         else{
-            char d[MAX_LINE_SIZE];
-            getDate(d);
-            insertback(&processi, pid, nome, ppid, d);
+            char d[MAX_LINE_SIZE]; //PROCESSO PADRE
+            getDate(d); //recupero data creazione figlio
+            insertback(&processi, pid, nome, ppid, d); //aggiungo figlio alla lista
             printf("Processo \"%s\" creato con successo (pid: %d, ore: %s)\n", nome, pid, d);
-            fflush(stdout);
+            fflush(stdout); //libero il buffer stdout
         }
 
     }
 }
 
-void info_process(char *nome){
-    if (strcmp(nome, "XXX")== 0 || strcmp(nome, "xxx")== 0) {
+void info_process(char *nome){ //stampa informazioni sul processo "nome"
+    if (strcmp(nome, "XXX")== 0 || strcmp(nome, "xxx")== 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
     else {
         pid_t pid, ppid;
         char d[MAX_LINE_SIZE];
-        getInfos(&processi, nome, &pid, &ppid, d);
-        if (pid == -1 && ppid == -1){
+        getInfos(&processi, nome, &pid, &ppid, d); //richiedo informazioni sul processo
+        if (pid == -1 && ppid == -1){ //gestione processo inesistente
             printf(ANSI_COLOR_RED"Processo \"%s\" inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
         }
         else{
-            printf("Processo %s (pid: %d, ppid: %d, creato alle: %s)\n", nome, pid, ppid, d);
+            printf("Processo %s (pid: %d, ppid: %d, creato alle: %s)\n", nome, pid, ppid, d); //stampo i dati del processo
         }
     }
 }
 
-void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
-    if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) {
+void kill_process(char* nome){ //chiude il processo "nome"
+    if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
     else {
-        pid_t temp = change_item_name(&processi, nome, "XXX");
+        pid_t temp = change_item_name(&processi, nome, "XXX"); //cambio nome processo in XXX (convenzione per processo terminato)
 
-        if (temp == -1){
+        if (temp == -1){ //gestione processo inesistente
             printf(ANSI_COLOR_RED"Processo \"%s\" inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
         }
         else{
-            kill(temp, SIGTERM);
-            printf("Processo \"%s\" chiuso correttamente.\n", nome);
+            kill(temp, SIGTERM); //invio segnale di kill al processo
+            printf("Processo \"%s\" chiuso correttamente.\n", nome); //comunico corretta chiusura
         }
     }
 }
 
-void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
-    if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) {
+void rmall_process(char* nome){ //termina a cascata processo "nome" e relativi cloni
+    if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) { //controllo correttezza nome inserito (XXX riservato al programma)
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
-    else if (getPidbyName(&processi, nome) == -1){
+    else if (getPidbyName(&processi, nome) == -1){ //gestione processo inesistente
         printf(ANSI_COLOR_RED"Processo \"%s\" inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
         printf("Chiusura albero processi di \"%s\"...\n", nome);
-        rmallrec(&processi, nome);
+        rmallrec(&processi, nome); //chiamata funzione di eliminazione del processo "nome" e relativi figli
     }
 }
 
-void tree_process(){
-    if (processi.head == 0) {
+void tree_process(){ //stampa albero processi
+    if (processi.head == 0) { //gestione in caso di coda vuota
         printf("\nNessun processo attivo.\n\n");
     }
-    else {
+    else { 
         printf("\nAlbero processi:\n");
-        treerecchild(processi.head, getpid(),0,0);
+        treerecchild(processi.head, getpid(),0,0); //chiamata funzione stampa albero processi
         printf("\n");
     }
 }
 
-void esegui(char *words[MAX_ARGS], int arg_counter) {
-    if (arg_counter != 0) {
-        if (strcmp(words[0],"phelp") == 0){
-            if (arg_counter == 1) {
+void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i comandi utente
+    if (arg_counter != 0) { //controllo che vi sia almeno un argomento
+        if (strcmp(words[0],"phelp") == 0){ //esecuzione comando "phelp"
+            if (arg_counter == 1) { //controllo numero argomenti
                 printf("\nComandi disponibili:\n\nphelp​:\t\tstampa un elenco dei comandi disponibili\nplist​:\t\telenca i processi generati dalla shell custom\npnew <nome>:\tcrea un nuovo processo con nome <nome>\npinfo <nome>​:\tfornisce informazioni sul processo <nome>\npclose <nome>:\tchiede al processo <nome> di chiudersi\npspawn <nome>:\tchiede al processo <nome> di clonarsi creando <nome_i> con 'i' progressivo\nprmall <nome>:\tchiede al processo <nome> di chiudersi chiudendo anche eventuali cloni\nptree:\t\tmostra la gerarchia completa dei processi generati attivi\nquit​:\t\tesce dalla shell custom\n\n");
             }
             else {
                 printf(ANSI_COLOR_RED"Comando errato. Uso corretto: phelp\n"ANSI_COLOR_RESET);
             }
         }
-        // FATTO
-        else if (strcmp(words[0],"plist") == 0){
-            if (arg_counter == 1) {
+        else if (strcmp(words[0],"plist") == 0){ //esecuzione comando "plist"
+            if (arg_counter == 1) { //controllo numero argomenti
                 print_list();
             }
             else {
                 printf(ANSI_COLOR_RED"Comando errato. Uso corretto: plist\n"ANSI_COLOR_RESET);
             }
         }
-        // FATTO -- maggiori info in console
-        else if (strcmp(words[0],"pnew") == 0){
-            if (arg_counter == 2) {
-                if (alphanumeric(words[1]))
+        else if (strcmp(words[0],"pnew") == 0){ //esecuzione comando "pnew"
+            if (arg_counter == 2) { //controllo numero argomenti
+                if (alphanumeric(words[1])) //controllo che il nome processo sia alfanumerico
                     new_process(words[1]);
                 else
                     printf(ANSI_COLOR_RED"Il nome del processo deve essere alfanumerico\n"ANSI_COLOR_RESET);
@@ -262,20 +254,18 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pnew <nome>\n"ANSI_COLOR_RESET);
             }
         }
-        // FATTO
-        else if (strcmp(words[0],"pinfo") == 0){
-            if (arg_counter == 2) {
+        else if (strcmp(words[0],"pinfo") == 0){ //esecuzione comando "pinfo"
+            if (arg_counter == 2) { //controllo numero argomenti
                 info_process(words[1]);
             }
             else {
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pinfo <nome>\n"ANSI_COLOR_RESET);
             }
         }
-        // FATTO
-        else if (strcmp(words[0],"pspawn") == 0){
-            if (arg_counter == 2) {
-                pid_t p = checkDuplicates(&processi,words[1], "clonare");
-                if (p == -1){
+        else if (strcmp(words[0],"pspawn") == 0){ //esecuzione comando "pspawn" -- COMMENTARE
+            if (arg_counter == 2) { //controllo numero argomenti
+                pid_t p = checkDuplicates(&processi,words[1], "clonare"); //gestisco casi di omonimia
+                if (p == -1){ //gestione processo da clonare inesistente
                     printf(ANSI_COLOR_RED"Errore processo \"%s\" non esistente. Comando ignorato...\n"ANSI_COLOR_RESET, words[1]);
                 }
                 else {
@@ -285,7 +275,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                     write(fn[WRITE], words[1],(strlen(words[1])+1));
                     signal(SIGUSR1,handler);
                     int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
-                    if (nbytes_c == -1) {
+                    if (nbytes_c == -1) { //gestione errore clonazione processo
                         printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
                         exit(-1);
                     }
@@ -302,19 +292,19 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pspawn <nome>\n"ANSI_COLOR_RESET);
             }
         }
-        // FATTO
-        else if (strcmp(words[0],"pclose") == 0){
-            if (arg_counter == 2) {
+        // FINE COMMENTARE
+        else if (strcmp(words[0],"pclose") == 0){ //esecuzione comando "pclose"
+            if (arg_counter == 2) { //controllo numero argomenti
                 printf("Chiedo al processo \"%s\" di chiudersi\n", words[1]);
-                kill_process(words[1]);
+                kill_process(words[1]); //chiudo processo
             }
             else {
                 printf(ANSI_COLOR_RED"Comando errato. Uso corretto: pclose <nome>\n"ANSI_COLOR_RESET);
             }
         }
         // FATTO
-        else if (strcmp(words[0],"prmall") == 0){
-            if (arg_counter == 2) {
+        else if (strcmp(words[0],"prmall") == 0){ //esecuzione comando "prmall"
+            if (arg_counter == 2) { //controllo numero argomenti
                 rmall_process(words[1]);
             }
             else {
@@ -322,8 +312,8 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
             }
         }
         // FATTO
-        else if (strcmp(words[0],"ptree") == 0){
-            if (arg_counter == 1) {
+        else if (strcmp(words[0],"ptree") == 0){ //esecuzione comando "ptree"
+            if (arg_counter == 1) { //controllo numero argomenti
                 tree_process();
             }
             else {
@@ -331,17 +321,17 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
             }
         }
         // FATTO
-        else if (strcmp(words[0],"quit") == 0){
-            if (arg_counter == 1) {
+        else if (strcmp(words[0],"quit") == 0){ //esecuzione comando "quit"
+            if (arg_counter == 1) { //controllo numero argomenti
                 printf("Chiudo processi aperti e termino pmanager...\n");
-                killAll(&processi);
-                exit(0);
+                killAll(&processi); //chiudo tutti i processi aperti rimanenti
+                exit(0); //termino il programma
             }
             else {
                 printf(ANSI_COLOR_RED"Comando errato. Uso corretto: quit\n"ANSI_COLOR_RESET);
             }
         }
-        else {
+        else { //gestione comando errato
             printf(ANSI_COLOR_RED"Comando non riconosciuto. Digita \"phelp\" per la lista dei comandi disponibili.\n"ANSI_COLOR_RESET);
         }
     }
