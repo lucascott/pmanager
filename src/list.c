@@ -5,6 +5,10 @@
 #include <sys/types.h>
 #include <signal.h>
 #include "list.h"
+#include "intlist.h"
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 void initlist(List *ilist) {
     ilist->head = 0;
@@ -15,7 +19,8 @@ void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     newitem->next = ilist->head;
-    strcpy((newitem->pname), name);
+    strncpy((newitem->pname), name, 50);
+    newitem->pname[50] = '\0';
     newitem->pid = pid;
     newitem->ppid = ppid;
     ilist->head = newitem;
@@ -25,7 +30,8 @@ void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
 void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
-    strcpy((newitem->pname), name);
+    strncpy((newitem->pname), name, sizeof(newitem->pname));
+    newitem->pname[50] = '\0';
     newitem->pid = pid;
     newitem->ppid = ppid;
     strcpy(newitem->pdate,data);
@@ -67,7 +73,7 @@ void destroy(List *ilist) {
 
 int rmallrec(List *ilist, char *name){
     if (!ilist->head) return -1;
-    pid_t pid = getPidbyName(ilist,name);
+    int pid = checkDuplicates(ilist, name, "terminare a cascata");
     printf("Chiusura %s (pid: %d)\n",name, pid );
     Listitem * ptr = ilist->head;
     if(ptr->pid == pid && ptr->next == 0) { // elemento in testa
@@ -148,10 +154,10 @@ void printlist(List ilist) {
     if (!ilist.head) return;
     ptr = ilist.head;
     while (ptr->next != 0) {
-        printf("%d\t %-15s\t %d\t%s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
+        printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
         ptr = ptr->next;
     }
-    printf("%d\t %-15s\t %d\t%s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
+    printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
 }
 
 pid_t getPidbyName (List *ilist, char *name) {
@@ -175,6 +181,7 @@ pid_t getPidbyName (List *ilist, char *name) {
 }
 
 void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
+    int res = checkDuplicates(ilist, name, "visualizzare");
     Listitem *ptr;
     Listitem *tmp;
     if (!ilist->head){
@@ -183,14 +190,14 @@ void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
         return;
     } //non trovato
     ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
+    if(ptr->pid == res) {
         *pid = ptr->pid;
         *ppid = ptr->ppid;
         strcpy(data, ptr->pdate);
         return;
     }
     while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
+        if((ptr->next)->pid == res) {
             *pid = (ptr->next)->pid;
             *ppid = (ptr->next)->ppid;
             strcpy(data, (ptr->next)->pdate);
@@ -221,19 +228,92 @@ int killAll(List *ilist) {
     return 1;
 }
 
+int myIsDigit(char *str){
+    int i;
+    int len = strlen(str);
+    if (atoi(str)){
+        return 1;
+    }
+    for (i = 0; i < len; i++){
+        char c = str[i]; 
+        if(!isdigit(c)){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int checkDuplicates(List *ilist, char *name, char *flag){
+    Listitem *ptr;
+    int t;
+    intList temp;
+    intinitlist(&temp);
+    int ref = -1;
+    if (!ilist->head) {
+        return ref;
+    }
+    ptr = ilist->head;
+    if (strcmp(ptr->pname, name) == 0) {
+        t = (int) ptr->pid;
+        intinsertback(&temp, t);
+    }
+    while (ptr->next != 0) {
+        if(strcmp((ptr->next)->pname, name) == 0) {
+            t = (int) (ptr->next)->pid;
+            intinsertback(&temp, t);
+        }
+        ptr = ptr -> next;
+    }
+    if (intlength(temp) == 0) return -1;
+    else if (intlength(temp) == 1) {
+        intdestroy(&temp);
+        ref = t;
+    }
+    else {
+        char n[10];
+        int len = intlength(temp);
+        printf("Rilevati %d processi chiamati \"%s\" aperti:\n", len, name);
+        intprintlist(&temp);
+        printf("Inserisci indice processo da %s:\n",flag);
+        int valid = 0;
+        int num = -1;
+        do{
+            printf("\r>> ");
+            scanf("%s",&n);
+            fflush(stdin);
+            if (!myIsDigit(n)){
+                printf(ANSI_COLOR_RED"Errore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET );
+            }
+            else {
+                num = atoi(n);
+                if (num >= len || num < 0){
+                    printf(ANSI_COLOR_RED"Errore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
+                }
+                else{
+                    valid = 1;
+                }
+            }
+        } while (!valid);
+        ref = intgetitem(&temp, num);
+    }
+    return ref;
+}
+
 pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *ptr;
     Listitem *tmp;
-    pid_t found = -1;
+    pid_t found;
+    int ref = checkDuplicates(ilist, name, "terminare");
+    if (ref == -1) return -1;
     if (!ilist->head) return -1;
     ptr = ilist->head;
-    if(strcmp(ptr->pname, name) == 0) {
+    if(ptr->pid == ref) {
         found = ptr->pid;
         strcpy(ptr->pname, newname);
         return found;
     }
     while (ptr->next != 0) {
-        if(strcmp((ptr->next)->pname, name) == 0) {
+        if((ptr->next)->pid == ref) {
             found = (ptr->next)->pid;
             strcpy((ptr->next)->pname, newname);
             return found;
@@ -241,4 +321,21 @@ pid_t change_item_name (List *ilist, char *name, char * newname){
         ptr = ptr -> next;
     }
     return -1;
+}
+
+int numActive(List *ilist) {
+    Listitem *ptr;
+    int count = 0;
+    if (!ilist->head) return 0;
+    ptr = ilist->head;
+    if (strcmp((ptr->pname), "XXX") != 0) {
+        count++;
+    }
+    while (ptr->next) {
+        ptr = ptr->next;
+        if (strcmp((ptr->pname), "XXX") != 0) {
+            count++;
+        }
+    }
+    return count;
 }

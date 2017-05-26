@@ -26,15 +26,15 @@ float       extr[NCOMMANDS];
 
 void setProb() {
     float AMP = 1.3;
-    float amp = 0.5;
-    prob[0] = MAXPROCESSI/2*amp *0;       // phelp
-    prob[1] = MAXPROCESSI/2*amp *0.1;       // plist
+    float amp = 0.05;
+    prob[0] = MAXPROCESSI/2*amp;       // phelp
+    prob[1] = MAXPROCESSI/2*amp;       // plist
     prob[2] = MAXPROCESSI - p_open;    // pnew
-    prob[3] = p_open*amp *0.1;              // pinfo
+    prob[3] = p_open*amp;              // pinfo
     prob[4] = p_open * AMP;            // pclose
     prob[5] = p_open*amp;              // pspawn
     prob[6] = p_open * AMP;            // prmall
-    prob[7] = p_open*amp * 0.01;              // ptree
+    prob[7] = p_open*amp;              // ptree
     prob[8] = 0;                       // quit
 }
 
@@ -96,28 +96,6 @@ void chiamacomando(){
     int     r2;
 
     normalizeProb();
-
-    /*
-    // DEBUG
-    { // stampa processi
-        int i;
-        for (i = 0; i < MAXPROCESSI; i++) {
-            printf("%d|%s - %d\n",i, processi[i], proc_aperto[i]);
-        }
-        printf("==========\n");
-    }
-
-
-    {
-        int i;
-        for (i = 0; i < NCOMMANDS; i++){
-            printf("c: %s\t%f\n", commands[i],prob[i] );
-            extr[i] = 0;
-        }
-    }
-    // END DEBUG
-    */
-
     r = pickOne();
     strcpy(comando, commands[r]);
     strcat(comando, " ");

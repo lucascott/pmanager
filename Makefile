@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS =
 
 BUILD_DIR = src/build
-FILE_LIST = src/list.h src/list.c src/utils.h src/utils.c src/main.c
+FILE_LIST = src/intlist.h src/intlist.c src/list.h src/list.c src/utils.h src/utils.c src/main.c
 EXEC_NAME = pmanager
 
 ASSETS_DIR = src/assets
@@ -21,7 +21,7 @@ help:
 	@echo " Giulio Marcon (178633)\n"
 	@echo "DESCRIZIONE: Gestore di processi a interfaccia shell con supporto a creazione, terminazione, visualizzazione informazioni e clonazione di processi.\n"
 	@echo "UTILIZZO: make [opzione]\n"
-	@echo "OPZIONI:\n  help: visualizza questo messaggio\n  clean: rimuove le directory generate dal programma\n  build: genera l'eseguibile del programma\n  assets: genera directory con i files di supporto\n  test: esegue il programma in modalità test\n"
+	@echo "OPZIONI:\n  help: visualizza questo messaggio\n  clean: rimuove le directory generate dal programma\n  build: genera l'eseguibile del programma\n  assets: genera directory con i files di supporto\n  test: esegue il programma in modalità test\n  exec: esegue il programma in modalità interattiva\n"
 
 clean:
 	@echo "Pulizia..."

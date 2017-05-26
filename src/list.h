@@ -4,10 +4,10 @@
 #include <sys/types.h>
 
 struct listitem {
-        char pname[100];
+        char pname[50];
         pid_t pid;
         pid_t ppid;
-        char pdate[100];
+        char pdate[13];
         struct listitem *next;
 };
 typedef struct listitem Listitem;
@@ -31,7 +31,8 @@ void printlist(List ilist);
 pid_t getPidbyName (List *ilist, char *name);
 void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data);
 int killAll(List *ilist);
+int checkDuplicates(List *ilist, char *name, char *flag);
 pid_t change_item_name (List *ilist, char *name, char * newname);
-
+int numActive(List *ilist);
 
 #endif  /* _LIST_H */

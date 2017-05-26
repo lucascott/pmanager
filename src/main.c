@@ -3,7 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-//#include <prctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include "list.h"
@@ -78,7 +77,7 @@ int main(int n_par, char *argv[]){
         printf("PMANAGER: \n");
         while (1) {
             fflush(stdout); // serve per stampare tutto il buffer prima di dare il controllo alla shell
-            printf("$> ");
+            printf("\r$> ");
             // lettura comandi
             if (!fgets(line, MAX_LINE_SIZE, stdin)){
                 exit (1);
