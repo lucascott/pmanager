@@ -8,84 +8,83 @@
 #include "list.h"
 #include "utils.h"
 
-#define MAX_ARGS 256
+//DEFINIZIONE COSTANTI
+#define MAX_ARGS 256 
 #define MAX_LINE_SIZE 1024
 
 #define READ 0
 #define WRITE 1
 
-extern List processi;
+//COLORE ERRORI SHELL
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
-// pipe (proc. figlio -> padre)
+extern List processi; //dichiarazione esterna lista processi
+
+extern int counter; //dichiarazione esterna del contatore processi cloni generati (solo per figli)
+
+//PIPE (proc. figlio -> padre)
 extern int     	fc[2], nbytes_c;
 extern char		readbuffer_c[80];
 
-// pipe (proc. figlio -> padre)
+//PIPE (proc. padre -> figlio)
 extern int      fn[2], nbytes_n;
 extern char     readbuffer_n[80];
 
-// contatore processi cloni generati (solo per figli)
-extern int 		counter;
 
 int main(int n_par, char *argv[]){
     int 	argc = 0;
     char    line[MAX_LINE_SIZE];
     char    *pch[MAX_ARGS];
 
-    // apro la pipe
+    //apro la pipe
     pipe(fc);
     pipe(fn);
 
-    if (signal(SIGUSR1, handler) == SIG_ERR){
-        printf("Impossibile catturare il SIGUSR1\n");
+    if (signal(SIGUSR1, handler) == SIG_ERR){ //Apertura handler SIGUSR1
+        printf(ANSI_COLOR_RED"Impossibile catturare il SIGUSR1\n"ANSI_COLOR_RESET);
     }
 
-    // inizializzo lista processi del padre
-    initlist(&processi);
+    initlist(&processi); //inizializzo lista processi del padre
 
-    FILE *ifp;
-    //printf("Pmanager run with %d params\n", n_par);
-    if (n_par == 2 && access( argv[1], F_OK ) == -1){ // SE IL FILE NON ESISTE (poi avvia in modalità inserimento utente)
-        printf("File \"%s\" non trovato...\n\n",argv[1]);
+    FILE *ifp; //gestione file di input
+    if (n_par == 2 && access( argv[1], F_OK ) == -1){ //SE IL FILE NON ESISTE (poi avvia in modalità inserimento utente)
+        printf(ANSI_COLOR_RED"File \"%s\" non trovato...\n\n"ANSI_COLOR_RESET,argv[1]);
     }
-    if (n_par == 2 && access( argv[1], F_OK ) != -1){ // SE PASSATO IL FILE
+    if (n_par == 2 && access( argv[1], F_OK ) != -1){ //SE IL FILE ESISTE
         ifp = fopen(argv[1], "r");
         if (ifp == NULL) {
-            printf("Impossibile aprire \"%s\"...\n",argv[1]);
+            printf(ANSI_COLOR_RED"Impossibile aprire \"%s\"...\n"ANSI_COLOR_RESET,argv[1]);
             exit(1);
         }
-        while (fscanf(ifp,"%s", line) != EOF){
+        while (fscanf(ifp,"%s", line) != EOF){ //lettura file sequenziale
 
-            if (isCommandWithParam(line)){
+            if (isCommandWithParam(line)){ //controllo se la riga è un comando che richiede parametri
                 strcat(line, " ");
                 char temp[50];
                 fscanf(ifp,"%s", temp);
                 strcat(line, temp);
             }
 
-            // tokenizzo il comando passato
-            tokenize(line, pch, &argc);
+            tokenize(line, pch, &argc); //separe comando dagli argomenti
             if(argc == 1)
             printf("$> %s\n", pch[0]);
             else
             printf("$> %s %s\n", pch[0],pch[1]);
-            // eseguo operazioni richieste
-            esegui(pch, argc);
+            esegui(pch, argc); // eseguo operazioni richieste
         }
     }
     else {
         printf("PMANAGER: \n");
         while (1) {
-            fflush(stdout); // serve per stampare tutto il buffer prima di dare il controllo alla shell
+            fflush(stdout); //libero il buffer stdout
             printf("\r$> ");
             // lettura comandi
             if (!fgets(line, MAX_LINE_SIZE, stdin)){
                 exit (1);
             }
-            // tokenizzo il comando passato
-            tokenize(line, pch, &argc);
-            // eseguo operazioni richieste
-            esegui(pch, argc);
+            tokenize(line, pch, &argc); //separo comando dagli argomenti
+            esegui(pch, argc); //eseguo operazione richiesta
         }
     }
     return 0;

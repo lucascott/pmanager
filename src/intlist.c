@@ -28,7 +28,7 @@ void intinsertback(intList *ilist, int val) {
    ptr->next = newitem;
 }
 
-int intlength(intList ilist){      /* returns list length */
+int intlength(intList ilist){      
    intListitem *ptr;
    int count = 1;
    if (!ilist.head) return 0;
@@ -40,10 +40,10 @@ int intlength(intList ilist){      /* returns list length */
    return count;
 }
 
-void intdestroy(intList *ilist) {          /* deletes list */
+void intdestroy(intList *ilist) {         
    intListitem *ptr1,*ptr2;
-   if (!ilist->head) return;  /* nothing to destroy */
-   ptr1 = ilist->head;        /* destroy one by one */
+   if (!ilist->head) return;  
+   ptr1 = ilist->head;
    while (ptr1)  {
         ptr2 = ptr1;
         ptr1 = ptr1->next;

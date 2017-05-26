@@ -162,7 +162,6 @@ void printlist(List ilist) {
 
 pid_t getPidbyName (List *ilist, char *name) {
     Listitem *ptr;
-    Listitem *tmp;
     pid_t found = -1;
     if (!ilist->head) return -1;    //non trovato
     ptr = ilist->head;
@@ -183,7 +182,6 @@ pid_t getPidbyName (List *ilist, char *name) {
 void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
     int res = checkDuplicates(ilist, name, "visualizzare");
     Listitem *ptr;
-    Listitem *tmp;
     if (!ilist->head){
         *pid = -1;
         *ppid = -1;
@@ -279,7 +277,7 @@ int checkDuplicates(List *ilist, char *name, char *flag){
         int num = -1;
         do{
             printf("\r>> ");
-            scanf("%s",&n);
+            scanf("%s",n);
             fflush(stdin);
             if (!myIsDigit(n)){
                 printf(ANSI_COLOR_RED"Errore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET );
@@ -301,7 +299,6 @@ int checkDuplicates(List *ilist, char *name, char *flag){
 
 pid_t change_item_name (List *ilist, char *name, char * newname){
     Listitem *ptr;
-    Listitem *tmp;
     pid_t found;
     int ref = checkDuplicates(ilist, name, "terminare");
     if (ref == -1) return -1;
