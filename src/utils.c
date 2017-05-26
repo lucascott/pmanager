@@ -101,17 +101,16 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
         int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
         fflush(stdout);
         if (nbytes_n == -1) {
-            printf("Clonazione processo non riuscita...\n");
+            printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
             exit(-1);
         }
         pid_t tpid = fork();
         fflush(stdout);
         if (tpid < 0) {
-            printf("Clonazione processo non riuscita...\n");
+            printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
             exit(-1);
         }
         else if (tpid == 0) { // processo clone del figlio
-            //printf("Clonato...\n");
             counter = 0;
         }
         else {// processo padre "figlio del padre"
@@ -133,9 +132,7 @@ void handler (int signo) { //, siginfo_t *siginfo, void *context
 
 
             // invio messaggio al padre
-            //printf("STRINGA: %s\tPID dc: %d",str, getpid() );
             write(fc[WRITE], str,(strlen(str)+1));
-            //fflush(stdout);
         }
     }
 }
@@ -201,7 +198,7 @@ void kill_process(char* nome){ // devo gestire se tolgo processi da in mezzo
         pid_t temp = change_item_name(&processi, nome, "XXX");
 
         if (temp == -1){
-            printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+            printf(ANSI_COLOR_RED"Processo \"%s\" inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
         }
         else{
             kill(temp, SIGTERM);
@@ -215,10 +212,10 @@ void rmall_process(char* nome){ // devo gestire se tolgo processi da in mezzo
         printf(ANSI_COLOR_RED"Nome \"XXX\" riservato al sistema. Comando ignorato...\n"ANSI_COLOR_RESET);
     }
     else if (getPidbyName(&processi, nome) == -1){
-        printf(ANSI_COLOR_RED"Processo %s inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
+        printf(ANSI_COLOR_RED"Processo \"%s\" inesistente. Comando ignorato...\n"ANSI_COLOR_RESET, nome);
     }
     else{
-        printf("Chiusura albero processi di %s...\n", nome);
+        printf("Chiusura albero processi di \"%s\"...\n", nome);
         rmallrec(&processi, nome);
     }
 }
@@ -292,7 +289,6 @@ void esegui(char *words[MAX_ARGS], int arg_counter) {
                         printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
                         exit(-1);
                     }
-                    //printf("risposta child: %s\n", readbuffer_c);
                     char * ris [MAX_ARGS];
                     int arg_ris;
                     char d[MAX_LINE_SIZE];
