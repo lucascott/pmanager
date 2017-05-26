@@ -3,7 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-//#include <prctl.h>
 #include <signal.h>
 #include <unistd.h>
 #include "list.h"

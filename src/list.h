@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 struct listitem {
-        char pname[100];
+        char pname[50];
         pid_t pid;
         pid_t ppid;
         char pdate[13];
