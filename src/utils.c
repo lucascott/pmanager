@@ -90,22 +90,22 @@ int alphanumeric(char * str){ //controlla che la stringa str sia alfanumerica
 }
 
 
-void handler (int signo) {  //handler SIGUSR1 -- COMMENTARE
-    if (signo == SIGUSR1) {
-        int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n));
+void handler (int signo) {  //handler per SIGUSR1
+    if (signo == SIGUSR1) { // se il segnale ricevuto è SIGUSR1
+        int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n)); // legge dalla pipe il nome del processo da clonare
         fflush(stdout);
-        if (nbytes_n == -1) {
+        if (nbytes_n == -1) { // se non legge nulla dalla pipe da errore
             printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
             exit(-1);
         }
-        pid_t tpid = fork();
+        pid_t tpid = fork(); // altrimenti fa un fork
         fflush(stdout);
-        if (tpid < 0) {
+        if (tpid < 0) { // se la system call fallisce da errore
             printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
             exit(-1);
         }
         else if (tpid == 0) { // processo clone del figlio
-            counter = 0;
+            counter = 0; // azzera il contatore di processi del figlio
         }
         else {// processo padre "figlio del padre"
             counter++; // aumento contatore processi clonati
@@ -130,7 +130,6 @@ void handler (int signo) {  //handler SIGUSR1 -- COMMENTARE
         }
     }
 }
-//FINE COMMENTARE
 
 void new_process(char *nome){ //crea un nuovo processo chiamato "nome"
     if (strcmp(nome, "XXX") == 0 || strcmp(nome, "xxx") == 0) { //controllo correttezza nome inserito (XXX riservato al programma)
@@ -262,7 +261,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i c
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pinfo <nome>\n"ANSI_COLOR_RESET);
             }
         }
-        else if (strcmp(words[0],"pspawn") == 0){ //esecuzione comando "pspawn" -- COMMENTARE
+        else if (strcmp(words[0],"pspawn") == 0){ //esecuzione comando "pspawn" 
             if (arg_counter == 2) { //controllo numero argomenti
                 pid_t p = checkDuplicates(&processi,words[1], "clonare"); //gestisco casi di omonimia
                 if (p == -1){ //gestione processo da clonare inesistente
@@ -272,19 +271,19 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i c
                     printf("Clonazione processo \"%s\" (pid: %d)\n", words[1], p);
                     //mando messaggio a processo che deve clonarsi
                     kill(p,SIGUSR1);
-                    write(fn[WRITE], words[1],(strlen(words[1])+1));
-                    signal(SIGUSR1,handler);
-                    int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c));
-                    if (nbytes_c == -1) { //gestione errore clonazione processo
+                    write(fn[WRITE], words[1],(strlen(words[1])+1)); // scrive nella pipe il nome del processo che l'utente ha chiesto di clonare
+                    signal(SIGUSR1,handler); 
+                    int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c)); // legge dalla pipe il messaggio del padre che dovrebbe essere nel formato "pid nome_processo"
+                    if (nbytes_c == -1) { // se il padre non scrive nulla
                         printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);
                         exit(-1);
                     }
                     char * ris [MAX_ARGS];
                     int arg_ris;
                     char d[MAX_LINE_SIZE];
-                    getDate(d);
-                    tokenize(readbuffer_c, ris, &arg_ris);
-                    insertback(&processi, atoi(ris[0]), ris[1], p, d);
+                    getDate(d); // trova l'ora attuale
+                    tokenize(readbuffer_c, ris, &arg_ris); // divide in un array la risposta del padre. Nel posto zero ci sarà il pid, nel posto 1 il nome del processo
+                    insertback(&processi, atoi(ris[0]), ris[1], p, d); // lo inserisce nella lista
                     printf("Processo clone \"%s\" creato con successo (pid: %s, ppid: %d ore: %s)\n",ris[1], ris[0], p, d);
                 }
             }
@@ -292,7 +291,6 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i c
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pspawn <nome>\n"ANSI_COLOR_RESET);
             }
         }
-        // FINE COMMENTARE
         else if (strcmp(words[0],"pclose") == 0){ //esecuzione comando "pclose"
             if (arg_counter == 2) { //controllo numero argomenti
                 printf("Chiedo al processo \"%s\" di chiudersi\n", words[1]);
