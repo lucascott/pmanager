@@ -1,4 +1,5 @@
 trattino basso non è alfanumerico
 controllo inserimento numero su numero processi datagen
+lunghezza massima al pclone
 
 CONTROLLARE IL CORRETTO FUNZIONAMENTO DI TUTTE LE FUNZIONI
