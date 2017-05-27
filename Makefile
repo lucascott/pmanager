@@ -2,7 +2,7 @@
 .PHONY: help clean build assets test exec
 
 CC = gcc
-CFLAGS = -Wall
+CFLAGS =
 
 BUILD_DIR = src/build
 FILE_LIST = src/intlist.h src/intlist.c src/list.h src/list.c src/utils.h src/utils.c src/main.c

@@ -17,7 +17,7 @@ short       p_open = 0; // counter processi aperti
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 
-    if (argc != 2)
+    if (argc != 2) // controllo correttezza d'uso del tool datagen
     {
         printf(ANSI_COLOR_RED"Errore sintassi. Uso: datagen nome_file\n"ANSI_COLOR_RESET);
         exit(-1);
@@ -93,10 +93,9 @@ int main(int argc, char *argv[]) {
         { // genera n comandi tra GENERA_MAX_C e GENERA_MIN_C
             int i;
             for (i = 1; i < end; i++){
-                //printf("%d\t",i);
                 chiamacomando(of,numero_processi);
+                //printProb(numero_processi, p_open);
             }
-            //printf("%d\tquit\n",i);
             fprintf(of,"quit\n");
             end++;
         }
@@ -107,20 +106,18 @@ int main(int argc, char *argv[]) {
 }
 
 void setProb(int numprocessi) { // funzione setup delle probabilità dinamiche assegnate a ciascun comando
-    float AMP = 1.3;
-    float amp = 0.1;
-    prob[0] = numprocessi/2*amp;       // phelp
-    prob[1] = numprocessi/2*amp;       // plist
+    prob[0] = numprocessi/2 * 0.1;       // phelp
+    prob[1] = numprocessi/2 * 0.1;       // plist
     prob[2] = numprocessi - p_open;    // pnew
-    prob[3] = p_open*amp;              // pinfo
-    prob[4] = p_open * AMP;            // pclose
-    prob[5] = p_open;                  // pspawn
-    prob[6] = p_open * AMP;            // prmall
-    prob[7] = p_open*amp;              // ptree
+    prob[3] = p_open * 0.1;              // pinfo
+    prob[4] = p_open * 0.8;            // pclose
+    prob[5] = p_open * 1;                  // pspawn
+    prob[6] = p_open * 0.8;            // prmall
+    prob[7] = numprocessi/2 * 0.1;             // ptree
     prob[8] = 0;                       // quit
 }
 
-void chiamacomando(FILE *f, int numprocessi){
+void chiamacomando(FILE *f, int numprocessi) { // funzione che genera un comando casuale e lo stampa nel file di output passato come argomento
     char    comando[STRLEN*2];
     int     r;
     int     r2;
@@ -181,7 +178,7 @@ int pickOne() { // funzione che seleziona un indice casuale basato sulle probabi
     return index;
 }
 
-int myIsDigit(char *str){
+int myIsDigit(char *str) { // funzione che controlla se la stringa è un numero
     int i;
     int len = strlen(str);
     if (atoi(str)){
@@ -231,5 +228,16 @@ void test(int numprocessi, int n_prove) { // funzione di test aleatorio. Genera 
             printf("c: %s\t\t%f\t%f\n", commands[i], prob[i], extr[i]);
         else
             printf("c: %s\t%f\t%f\n", commands[i], prob[i], extr[i]);
+    }
+}
+
+void printProb(int numprocessi, int aperti) { // stampa probabilità processi nel dato momento
+    int i;
+    printf("COMANDO\t\tPROBABILITA' - aperti: %d su %d\n",aperti,numprocessi);
+    for (i = 0; i < NCOMMANDS; i++) {
+        if (strcmp(commands[i],"pnew") == 0 || strcmp(commands[i],"quit") == 0)
+            printf("c: %s\t\t%f\n", commands[i], prob[i]);
+        else
+            printf("c: %s\t%f\n", commands[i], prob[i]);
     }
 }
