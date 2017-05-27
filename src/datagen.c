@@ -41,12 +41,12 @@ int main(int argc, char *argv[]) {
             printf("\r>> ");
             scanf("%s",n);
             if (!myIsDigit(n)){
-                printf(ANSI_COLOR_RED"Errore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET);
+                printf(ANSI_COLOR_RED"\rErrore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET);
             }
             else {
                 numero_processi = atoi(n);
                 if (numero_processi < 0){
-                    printf(ANSI_COLOR_RED"Errore: valori negativi non ammessi. Riprovare...\n"ANSI_COLOR_RESET);
+                    printf(ANSI_COLOR_RED"\rErrore: valori negativi non ammessi. Riprovare...\n"ANSI_COLOR_RESET);
                 }
                 else{
                     valid = 1;
@@ -106,14 +106,14 @@ int main(int argc, char *argv[]) {
 }
 
 void setProb(int numprocessi) { // funzione setup delle probabilità dinamiche assegnate a ciascun comando
-    prob[0] = numprocessi/2 * 0.1;       // phelp
-    prob[1] = numprocessi/2 * 0.1;       // plist
+    prob[0] = numprocessi/2 * 0.05;       // phelp
+    prob[1] = numprocessi/2 * 0.05;       // plist
     prob[2] = numprocessi - p_open;    // pnew
     prob[3] = p_open * 0.1;              // pinfo
     prob[4] = p_open * 0.8;            // pclose
     prob[5] = p_open * 1;                  // pspawn
     prob[6] = p_open * 0.8;            // prmall
-    prob[7] = numprocessi/2 * 0.1;             // ptree
+    prob[7] = numprocessi/2 * 0.05;             // ptree
     prob[8] = 0;                       // quit
 }
 

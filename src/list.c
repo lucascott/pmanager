@@ -233,7 +233,7 @@ int myIsDigit(char *str){
         return 1;
     }
     for (i = 0; i < len; i++){
-        char c = str[i]; 
+        char c = str[i];
         if(!isdigit(c)){
             return 0;
         }
@@ -280,12 +280,12 @@ int checkDuplicates(List *ilist, char *name, char *flag){
             scanf("%s",n);
             fflush(stdin);
             if (!myIsDigit(n)){
-                printf(ANSI_COLOR_RED"Errore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET );
+                printf(ANSI_COLOR_RED"\rErrore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET );
             }
             else {
                 num = atoi(n);
                 if (num >= len || num < 0){
-                    printf(ANSI_COLOR_RED"Errore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
+                    printf(ANSI_COLOR_RED"\rErrore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
                 }
                 else{
                     valid = 1;
