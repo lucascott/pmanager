@@ -2,7 +2,7 @@
 .PHONY: help clean build assets test exec
 
 CC = gcc
-CFLAGS =
+CFLAGS = -Wall
 
 BUILD_DIR = src/build
 FILE_LIST = src/intlist.h src/intlist.c src/list.h src/list.c src/utils.h src/utils.c src/main.c
@@ -39,7 +39,7 @@ assets: build
 	@echo "Creazione assets directory..."
 	@mkdir -p $(ASSETS_DIR)
 	@echo "Compilazione generatore dinamico in corso..."
-	@$(CC) $(CFLAGS)  -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
+	@$(CC) $(CFLAGS) -o $(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATA_FILE_LIST)
 	@echo "Creazione dinamica file input in corso..."
 	@$(ASSETS_DIR)/$(DATA_EXEC_NAME) $(DATAFILE_NAME)
 	@mv $(DATAFILE_NAME) ./$(ASSETS_DIR)
