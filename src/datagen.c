@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdlib.h>
+#include <ctype.h>
+
 #include "datagen.h"
 
 char        commands[NCOMMANDS][STRLEN]; // lista comandi
@@ -14,32 +16,49 @@ short       p_open = 0; // counter processi aperti
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-    int numero_processi;
 
-    if (argc != 2)
+    if (argc != 2) // controllo correttezza d'uso del tool datagen
     {
-        printf("Errore. Uso: datagen nome_file\n");
+        printf(ANSI_COLOR_RED"Errore sintassi. Uso: datagen nome_file\n"ANSI_COLOR_RESET);
         exit(-1);
     }
     else {
+        // apro file in scrittura
         FILE *of;
         of = fopen(argv[1], "w");
+        printf("Apertura di \"%s\" avvenuta con successo.\n", argv[1]);
         if (of == NULL) {
-            printf("Errore apertura \"%s\"\n", argv[1]);
+            printf(ANSI_COLOR_RED"Errore in fase di apertura di \"%s\"\n"ANSI_COLOR_RESET, argv[1]);
             exit(-1);
         }
-        else
-        {
-            printf("Inserisci il numero di processi da creare: \n>> ");
-            scanf("%d",&numero_processi);
 
-            int i;
-            processi = (char **)malloc(numero_processi * sizeof(char*));
-            for(i = 0; i < numero_processi; i++) processi[i] = (char *)malloc(50 * sizeof(char));
+        // chiedo all'utente il numero di processi desiderati
+        char n[STRLEN];
+        int valid = 0;
+        int numero_processi = -1;
+        printf("Inserisci il numero di processi da creare:\n");
+        do {
+            printf("\r>> ");
+            scanf("%s",n);
+            if (!myIsDigit(n)){
+                printf(ANSI_COLOR_RED"\rErrore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET);
+            }
+            else {
+                numero_processi = atoi(n);
+                if (numero_processi < 0){
+                    printf(ANSI_COLOR_RED"\rErrore: valori negativi non ammessi. Riprovare...\n"ANSI_COLOR_RESET);
+                }
+                else{
+                    valid = 1;
+                }
+            }
+        } while (!valid);
 
-            proc_aperto = (short *)malloc(numero_processi * sizeof(short));
-
-        }
+        // allocazione spazio per array processi e processi aperti
+        int i;
+        processi = (char **)malloc(numero_processi * sizeof(char*));
+        for(i = 0; i < numero_processi; i++) processi[i] = (char *)malloc(50 * sizeof(char));
+        proc_aperto = (short *)malloc(numero_processi * sizeof(short));
 
         // dichiarazione array comandi
         {
@@ -54,6 +73,7 @@ int main(int argc, char *argv[]) {
             strcpy(commands[8], "quit");
         }
 
+        // popola array dei processi
         {
             int i;
             for (i = 0; i < numero_processi; i++) {
@@ -69,36 +89,35 @@ int main(int argc, char *argv[]) {
 
         // TEST FUNCTION
         //test(numero_processi, 1000);
-
-        {
+        int end = GENERA_MIN_C + (rand() % (GENERA_MAX_C - GENERA_MIN_C+1));
+        { // genera n comandi tra GENERA_MAX_C e GENERA_MIN_C
             int i;
-            int end = GENERA_MIN_C + (rand() % (GENERA_MAX_C - GENERA_MIN_C+1));
             for (i = 1; i < end; i++){
-                //printf("%d\t",i);
                 chiamacomando(of,numero_processi);
+                //printProb(numero_processi, p_open);
             }
-            //printf("%d\tquit\n",i);
             fprintf(of,"quit\n");
+            end++;
         }
+        fclose(of);
+        printf("Creazione di %d comandi avvenuta con successo\n", end);
     }
     return 0;
 }
 
 void setProb(int numprocessi) { // funzione setup delle probabilità dinamiche assegnate a ciascun comando
-    float AMP = 1.3;
-    float amp = 0.05;
-    prob[0] = numprocessi/2*amp;       // phelp
-    prob[1] = numprocessi/2*amp;       // plist
+    prob[0] = numprocessi/2 * 0.05;       // phelp
+    prob[1] = numprocessi/2 * 0.05;       // plist
     prob[2] = numprocessi - p_open;    // pnew
-    prob[3] = p_open*amp;              // pinfo
-    prob[4] = p_open * AMP;            // pclose
-    prob[5] = p_open*amp;              // pspawn
-    prob[6] = p_open * AMP;            // prmall
-    prob[7] = p_open*amp;              // ptree
+    prob[3] = p_open * 0.1;              // pinfo
+    prob[4] = p_open * 0.8;            // pclose
+    prob[5] = p_open * 1;                  // pspawn
+    prob[6] = p_open * 0.8;            // prmall
+    prob[7] = numprocessi/2 * 0.05;             // ptree
     prob[8] = 0;                       // quit
 }
 
-void chiamacomando(FILE *f, int numprocessi){
+void chiamacomando(FILE *f, int numprocessi) { // funzione che genera un comando casuale e lo stampa nel file di output passato come argomento
     char    comando[STRLEN*2];
     int     r;
     int     r2;
@@ -159,6 +178,21 @@ int pickOne() { // funzione che seleziona un indice casuale basato sulle probabi
     return index;
 }
 
+int myIsDigit(char *str) { // funzione che controlla se la stringa è un numero
+    int i;
+    int len = strlen(str);
+    if (atoi(str)){
+        return 1;
+    }
+    for (i = 0; i < len; i++){
+        char c = str[i];
+        if(!isdigit(c)){
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void normalizeExtr(float *extr) { // normalizza probabilità per modalità test
     float sum = 0;
     int i;
@@ -194,5 +228,16 @@ void test(int numprocessi, int n_prove) { // funzione di test aleatorio. Genera 
             printf("c: %s\t\t%f\t%f\n", commands[i], prob[i], extr[i]);
         else
             printf("c: %s\t%f\t%f\n", commands[i], prob[i], extr[i]);
+    }
+}
+
+void printProb(int numprocessi, int aperti) { // stampa probabilità processi nel dato momento
+    int i;
+    printf("COMANDO\t\tPROBABILITA' - aperti: %d su %d\n",aperti,numprocessi);
+    for (i = 0; i < NCOMMANDS; i++) {
+        if (strcmp(commands[i],"pnew") == 0 || strcmp(commands[i],"quit") == 0)
+            printf("c: %s\t\t%f\n", commands[i], prob[i]);
+        else
+            printf("c: %s\t%f\n", commands[i], prob[i]);
     }
 }

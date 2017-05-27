@@ -6,23 +6,13 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
+
 #include "list.h"
 #include "utils.h"
 
-//DEFINIZIONE FUNZIONI
-#define MAX_ARGS 256
-#define MAX_LINE_SIZE 1024
-
-#define READ 0
-#define WRITE 1
-
-//COLORE ERRORI SHELL
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
 List processi; //dichiarazione lista processi
 
-int counter = 0; //contatore processi cloni generati (solo per figli)
+int         counter = 0; //contatore processi cloni generati (solo per figli)
 
 //PIPE (proc. figlio -> padre)
 int         fc[2];
@@ -50,7 +40,7 @@ void getDate(char *data){ //salva la data e l'ora su data
 	long milliseconds;
 
 	//ottiene il tempo e lo converte in una struct tm
-	gettimeofday (&tv, NULL); 
+	gettimeofday (&tv, NULL);
 	ptm = localtime (&tv.tv_sec);
 
 	strftime (data, 104, "%H:%M:%S", ptm); //formatta la data e l'ora fino ai secondi
@@ -66,7 +56,7 @@ void print_list(){ //stampa la lista processi
 
 void tokenize(char * line, char ** tokens, int *argc){ //divide la stringa in singole parole
     *argc = 0; //inizializzo numero parole inserite
-    tokens[*argc] = strtok(line," \n\t"); //itilizzo strtok per troncare la stringa al primo spazio 
+    tokens[*argc] = strtok(line," \n\t"); //itilizzo strtok per troncare la stringa al primo spazio
     while (tokens[*argc] != NULL) //itero tutti gli argomenti
     {
         (*argc)++;
@@ -127,7 +117,7 @@ void handler (int signo) {  //handler per SIGUSR1
                 strcat(str,strcounter);
             }
             else
-                printf("Nome clone troppo lungo. Tronco \"_%d\"\n",counter);
+                printf(ANSI_COLOR_RED"Impossibile concatenare, nome clone troppo lungo. Tronco \"_%d\"\n"ANSI_COLOR_RESET,counter);
 
             fflush(stdout);
 
@@ -232,7 +222,7 @@ void tree_process(){ //stampa albero processi
     if (processi.head == 0) { //gestione in caso di coda vuota
         printf("\nNessun processo attivo.\n\n");
     }
-    else { 
+    else {
         printf("\nAlbero processi:\n");
         treerecchild(processi.head, getpid(),0,0); //chiamata funzione stampa albero processi
         printf("\n");
@@ -276,7 +266,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i c
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pinfo <nome>\n"ANSI_COLOR_RESET);
             }
         }
-        else if (strcmp(words[0],"pspawn") == 0){ //esecuzione comando "pspawn" 
+        else if (strcmp(words[0],"pspawn") == 0){ //esecuzione comando "pspawn"
             if (arg_counter == 2) { //controllo numero argomenti
                 if (strlen(words[1]) > 50)
                 {
@@ -294,7 +284,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { //interpreta ed esegue i c
                     //mando messaggio a processo che deve clonarsi
                     kill(p,SIGUSR1);
                     write(fn[WRITE], words[1],(strlen(words[1])+1)); // scrive nella pipe il nome del processo che l'utente ha chiesto di clonare
-                    signal(SIGUSR1,handler); 
+                    signal(SIGUSR1,handler);
                     int nbytes_c = read(fc[READ], readbuffer_c, sizeof(readbuffer_c)); // legge dalla pipe il messaggio del padre che dovrebbe essere nel formato "pid nome_processo"
                     if (nbytes_c == -1) { // se il padre non scrive nulla
                         printf(ANSI_COLOR_RED"Clonazione processo non riuscita...\n"ANSI_COLOR_RESET);

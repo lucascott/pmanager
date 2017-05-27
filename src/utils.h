@@ -18,6 +18,10 @@
 #define READ 0
 #define WRITE 1
 
+//COLORE ERRORI SHELL
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
 //FIRME FUNZIONI
 int isCommandWithParam(char * str); //controlla se il comando str richiede parametri
 void getDate(char *data); //salva la data e l'ora su data
