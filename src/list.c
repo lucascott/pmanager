@@ -97,11 +97,12 @@ int rmallrec(List *ilist, char *name) {
         Listitem * tmp = ptr->next;
         if (tmp->next == 0) { // se l'item da rimuovere è l'ultimo sposto il tail
             ilist->tail = ptr;
+            ptr->next = 0;
         }
         else{
             rmallrecchild(ilist, tmp->next,pid,tmp);
+            ptr->next = tmp->next;
         }
-        ptr->next = tmp->next;
         kill(tmp->pid, SIGTERM);
         free(tmp);
     }
@@ -109,25 +110,30 @@ int rmallrec(List *ilist, char *name) {
 }
 
 void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) {
-    if (elemento->ppid == pid)
-    {
+    while(elemento->next != 0 && elemento->ppid != pid) {
+        prec = elemento;
+        elemento = elemento->next;
+    }
+    if (elemento->ppid == pid) {
         if (elemento->next != 0) {
-            rmallrecchild(ilist, elemento->next,elemento->pid, elemento); // cerco e killo i filgi
-            rmallrecchild(ilist, elemento->next, pid, elemento);
+            rmallrecchild(ilist, elemento->next,elemento->pid, elemento); // cerco e chiudo i filgi
+            if (elemento->next != 0) {
+                rmallrecchild(ilist, elemento->next, pid, elemento); // cerco e chiudo i fratelli
+            }
         }
-        else{
-            ilist->tail = prec;
-        }
-        if (strcmp(elemento->pname, "XXX")!= 0) {
+        if (strcmp(elemento->pname, "XXX")!= 0) { // evito di chiamare kill su un processo già chiuso
             printf("Chiusura figlio %s (pid: %d)\n", elemento->pname, elemento->pid);
             kill(elemento->pid, SIGTERM);
         }
-        prec->next = elemento->next;
-        free(elemento);
-    }
-    else if (elemento->next != 0) {
-        rmallrecchild(ilist, elemento->next, pid, elemento);
-    }
+        if(elemento->next != 0) { // controllo per evitare errori di segmentazione
+            prec->next = elemento->next;
+        }
+        else {
+            prec->next = 0;
+            ilist->tail = prec;
+        }
+        free(elemento); // dealloco coda
+    }       
 }
 
 void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) {
