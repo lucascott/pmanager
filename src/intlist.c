@@ -1,10 +1,10 @@
-#include "intlist.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <signal.h>
+#include "intlist.h"
 
 void intinitlist(intList *ilist) {
   ilist->head = 0;
@@ -28,7 +28,7 @@ void intinsertback(intList *ilist, int val) {
    ptr->next = newitem;
 }
 
-int intlength(intList ilist){      
+int intlength(intList ilist) {
    intListitem *ptr;
    int count = 1;
    if (!ilist.head) return 0;
@@ -40,9 +40,9 @@ int intlength(intList ilist){
    return count;
 }
 
-void intdestroy(intList *ilist) {         
+void intdestroy(intList *ilist) {
    intListitem *ptr1,*ptr2;
-   if (!ilist->head) return;  
+   if (!ilist->head) return;
    ptr1 = ilist->head;
    while (ptr1)  {
         ptr2 = ptr1;

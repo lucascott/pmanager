@@ -9,7 +9,7 @@
 #include "utils.h"
 
 //DEFINIZIONE COSTANTI
-#define MAX_ARGS 256 
+#define MAX_ARGS 256
 #define MAX_LINE_SIZE 1024
 
 #define READ 0
@@ -32,7 +32,7 @@ extern int      fn[2], nbytes_n;
 extern char     readbuffer_n[80];
 
 
-int main(int n_par, char *argv[]){
+int main(int n_par, char *argv[]) {
     int 	argc = 0;
     char    line[MAX_LINE_SIZE];
     char    *pch[MAX_ARGS];
@@ -41,25 +41,25 @@ int main(int n_par, char *argv[]){
     pipe(fc);
     pipe(fn);
 
-    if (signal(SIGUSR1, handler) == SIG_ERR){ //Apertura handler SIGUSR1
+    if (signal(SIGUSR1, handler) == SIG_ERR) { //Apertura handler SIGUSR1
         printf(ANSI_COLOR_RED"Impossibile catturare il SIGUSR1\n"ANSI_COLOR_RESET);
     }
 
     initlist(&processi); //inizializzo lista processi del padre
 
     FILE *ifp; //gestione file di input
-    if (n_par == 2 && access( argv[1], F_OK ) == -1){ //SE IL FILE NON ESISTE (poi avvia in modalità inserimento utente)
+    if (n_par == 2 && access( argv[1], F_OK ) == -1) { //SE IL FILE NON ESISTE (poi avvia in modalità inserimento utente)
         printf(ANSI_COLOR_RED"File \"%s\" non trovato...\n\n"ANSI_COLOR_RESET,argv[1]);
     }
-    if (n_par == 2 && access( argv[1], F_OK ) != -1){ //SE IL FILE ESISTE
+    if (n_par == 2 && access( argv[1], F_OK ) != -1) { //SE IL FILE ESISTE
         ifp = fopen(argv[1], "r");
         if (ifp == NULL) {
             printf(ANSI_COLOR_RED"Impossibile aprire \"%s\"...\n"ANSI_COLOR_RESET,argv[1]);
             exit(1);
         }
-        while (fscanf(ifp,"%s", line) != EOF){ //lettura file sequenziale
+        while (fscanf(ifp,"%s", line) != EOF) { //lettura file sequenziale
 
-            if (isCommandWithParam(line)){ //controllo se la riga è un comando che richiede parametri
+            if (isCommandWithParam(line)) { //controllo se la riga è un comando che richiede parametri
                 strcat(line, " ");
                 char temp[50];
                 fscanf(ifp,"%s", temp);
@@ -80,7 +80,7 @@ int main(int n_par, char *argv[]){
             fflush(stdout); //libero il buffer stdout
             printf("\r$> ");
             // lettura comandi
-            if (!fgets(line, MAX_LINE_SIZE, stdin)){
+            if (!fgets(line, MAX_LINE_SIZE, stdin)) {
                 exit (1);
             }
             tokenize(line, pch, &argc); //separo comando dagli argomenti

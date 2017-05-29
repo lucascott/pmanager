@@ -46,7 +46,7 @@ void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     }
 }
 
-int length(List ilist){      /* returns list length */
+int length(List ilist) {      /* returns list length */
     Listitem *ptr;
     int count = 1;
     if (!ilist.head) return 0;
@@ -71,7 +71,7 @@ void destroy(List *ilist) {
     ilist->tail = 0;
 }
 
-int rmallrec(List *ilist, char *name){
+int rmallrec(List *ilist, char *name) {
     if (!ilist->head) return -1;
     int pid = checkDuplicates(ilist, name, "terminare a cascata");
     printf("Chiusura %s (pid: %d)\n",name, pid );
@@ -95,7 +95,7 @@ int rmallrec(List *ilist, char *name){
             ptr = ptr->next;
         }
         Listitem * tmp = ptr->next;
-        if (tmp->next == 0){ // se l'item da rimuovere è l'ultimo sposto il tail
+        if (tmp->next == 0) { // se l'item da rimuovere è l'ultimo sposto il tail
             ilist->tail = ptr;
         }
         else{
@@ -108,10 +108,10 @@ int rmallrec(List *ilist, char *name){
     return 0;
 }
 
-void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec){
+void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) {
     if (elemento->ppid == pid)
     {
-        if (elemento->next != 0){
+        if (elemento->next != 0) {
             rmallrecchild(ilist, elemento->next,elemento->pid, elemento); // cerco e killo i filgi
             rmallrecchild(ilist, elemento->next, pid, elemento);
         }
@@ -125,26 +125,26 @@ void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec){
         prec->next = elemento->next;
         free(elemento);
     }
-    else if (elemento->next != 0){
+    else if (elemento->next != 0) {
         rmallrecchild(ilist, elemento->next, pid, elemento);
     }
 }
 
-void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec){
+void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) {
     if (elemento->ppid == pid)
     {
         int i;
-        for(i=0; i < p; i++){
+        for(i=0; i < p; i++) {
             if (i == p-1) printf("└── ");
             else printf("│   ");
         }
         printf("%s\n", elemento->pname);
-        if (elemento->next != 0){
+        if (elemento->next != 0) {
             treerecchild(elemento->next,elemento->pid, p+1,p); // cerco e killo i figli
             treerecchild(elemento->next, pid, p,p);
         }
     }
-    else if (elemento->next != 0){
+    else if (elemento->next != 0) {
         treerecchild(elemento->next, pid, p,p);
     }
 }
@@ -182,7 +182,7 @@ pid_t getPidbyName (List *ilist, char *name) {
 void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
     int res = checkDuplicates(ilist, name, "visualizzare");
     Listitem *ptr;
-    if (!ilist->head){
+    if (!ilist->head) {
         *pid = -1;
         *ppid = -1;
         return;
@@ -226,22 +226,22 @@ int killAll(List *ilist) {
     return 1;
 }
 
-int myIsDigit(char *str){
+int myIsDigit(char *str) {
     int i;
     int len = strlen(str);
-    if (atoi(str)){
+    if (atoi(str)) {
         return 1;
     }
-    for (i = 0; i < len; i++){
+    for (i = 0; i < len; i++) {
         char c = str[i];
-        if(!isdigit(c)){
+        if(!isdigit(c)) {
             return 0;
         }
     }
     return 1;
 }
 
-int checkDuplicates(List *ilist, char *name, char *flag){
+int checkDuplicates(List *ilist, char *name, char *flag) {
     Listitem *ptr;
     int t;
     intList temp;
@@ -279,12 +279,12 @@ int checkDuplicates(List *ilist, char *name, char *flag){
             printf("\r>> ");
             scanf("%s",n);
             fflush(stdin);
-            if (!myIsDigit(n)){
+            if (!myIsDigit(n)) {
                 printf(ANSI_COLOR_RED"\rErrore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET );
             }
             else {
                 num = atoi(n);
-                if (num >= len || num < 0){
+                if (num >= len || num < 0) {
                     printf(ANSI_COLOR_RED"\rErrore: indice non presente in lista. Riprovare...\n"ANSI_COLOR_RESET );
                 }
                 else{
@@ -297,7 +297,7 @@ int checkDuplicates(List *ilist, char *name, char *flag){
     return ref;
 }
 
-pid_t change_item_name (List *ilist, char *name, char * newname){
+pid_t change_item_name (List *ilist, char *name, char * newname) {
     Listitem *ptr;
     pid_t found;
     int ref = checkDuplicates(ilist, name, "terminare");

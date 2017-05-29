@@ -3,7 +3,6 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
-
 #include "datagen.h"
 
 char        commands[NCOMMANDS][STRLEN]; // lista comandi
@@ -40,12 +39,12 @@ int main(int argc, char *argv[]) {
         do {
             printf("\r>> ");
             scanf("%s",n);
-            if (!myIsDigit(n)){
+            if (!myIsDigit(n)) {
                 printf(ANSI_COLOR_RED"\rErrore: caratteri non numerici non sono ammessi. Riprovare...\n"ANSI_COLOR_RESET);
             }
             else {
                 numero_processi = atoi(n);
-                if (numero_processi < 0){
+                if (numero_processi < 0) {
                     printf(ANSI_COLOR_RED"\rErrore: valori negativi non ammessi. Riprovare...\n"ANSI_COLOR_RESET);
                 }
                 else{
@@ -92,7 +91,7 @@ int main(int argc, char *argv[]) {
         int end = GENERA_MIN_C + (rand() % (GENERA_MAX_C - GENERA_MIN_C+1));
         { // genera n comandi tra GENERA_MAX_C e GENERA_MIN_C
             int i;
-            for (i = 1; i < end; i++){
+            for (i = 1; i < end; i++) {
                 chiamacomando(of,numero_processi);
                 //printProb(numero_processi, p_open);
             }
@@ -143,14 +142,14 @@ void chiamacomando(FILE *f, int numprocessi) { // funzione che genera un comando
             r2 = rand() % numprocessi;
             //printf("%d\n", r2);
         } while (!proc_aperto[r2]);
-        if (r == 4 || r == 6){
+        if (r == 4 || r == 6) {
             proc_aperto[r2] = 0;
             p_open--;
         }
         strcat(comando, processi[r2]);
         fprintf(f,"\t%s\n", comando);
     }
-    else if (r != -1){
+    else if (r != -1) {
         fprintf(f,"%s\n", comando);
     }
 }
@@ -159,10 +158,10 @@ void normalizeProb(int numprocessi) { // funzione di normalizzazione delle proba
     setProb(numprocessi);
     float sum = 0;
     int i;
-    for (i = 0; i < NCOMMANDS; i++){
+    for (i = 0; i < NCOMMANDS; i++) {
         sum += prob[i];
     }
-    for (i = 0; i < NCOMMANDS; i++){
+    for (i = 0; i < NCOMMANDS; i++) {
         prob[i] = prob[i]/sum*100;
     }
 }
@@ -170,7 +169,7 @@ void normalizeProb(int numprocessi) { // funzione di normalizzazione delle proba
 int pickOne() { // funzione che seleziona un indice casuale basato sulle probabilità assegnate a ogni comando
     int index = 0;
     float r = rand() % 100;
-    while(r > 0){
+    while(r > 0) {
         r = r - prob[index];
         index++;
     }
@@ -181,12 +180,12 @@ int pickOne() { // funzione che seleziona un indice casuale basato sulle probabi
 int myIsDigit(char *str) { // funzione che controlla se la stringa è un numero
     int i;
     int len = strlen(str);
-    if (atoi(str)){
+    if (atoi(str)) {
         return 1;
     }
-    for (i = 0; i < len; i++){
+    for (i = 0; i < len; i++) {
         char c = str[i];
-        if(!isdigit(c)){
+        if(!isdigit(c)) {
             return 0;
         }
     }
@@ -196,10 +195,10 @@ int myIsDigit(char *str) { // funzione che controlla se la stringa è un numero
 void normalizeExtr(float *extr) { // normalizza probabilità per modalità test
     float sum = 0;
     int i;
-    for (i = 0; i < NCOMMANDS; i++){
+    for (i = 0; i < NCOMMANDS; i++) {
         sum += extr[i];
     }
-    for (i = 0; i < NCOMMANDS; i++){
+    for (i = 0; i < NCOMMANDS; i++) {
         extr[i] = extr[i]/sum*100;
     }
 }
@@ -208,7 +207,7 @@ void test(int numprocessi, int n_prove) { // funzione di test aleatorio. Genera 
     float extr[NCOMMANDS];  // per testing aleatorio
     {
         int i;
-        for(i = 0; i < NCOMMANDS; i++){
+        for(i = 0; i < NCOMMANDS; i++) {
             extr[i] = 0;
         }
     }

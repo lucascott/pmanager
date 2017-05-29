@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
-
 #include "list.h"
 #include "utils.h"
 
