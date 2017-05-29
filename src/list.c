@@ -76,17 +76,20 @@ int rmallrec(List *ilist, char *name) {
     int pid = checkDuplicates(ilist, name, "terminare a cascata");
     printf("Chiusura %s (pid: %d)\n",name, pid );
     Listitem * ptr = ilist->head;
-    if(ptr->pid == pid && ptr->next == 0) { // elemento in testa
+    if(ptr->pid == pid && ptr->next == 0) { // elemento unico in testa
         ilist->head = 0;
         ilist->tail = 0;
         kill(pid, SIGTERM);
         free(ptr);
         return 0;
     }
-    else if(ptr->pid == pid) { // elemento in testa
+    else if(ptr->pid == pid) { // elemento in testa con successivi
 
         rmallrecchild(ilist,ptr->next,pid,ptr);
         ilist->head = ptr->next;
+        if(ptr->next == 0) { // se ho svuotato la lista la inizializzo
+            ilist->tail = 0;
+        }
         kill(pid, SIGTERM);
         free(ptr);
     }
@@ -102,6 +105,9 @@ int rmallrec(List *ilist, char *name) {
         else{
             rmallrecchild(ilist, tmp->next,pid,tmp);
             ptr->next = tmp->next;
+            if (ptr->next == 0) { // se in rmallrecchild ho rimosso tutti gli elementi successivi sposto il tail della lista
+                ilist->tail = ptr;
+            }
         }
         kill(tmp->pid, SIGTERM);
         free(tmp);
@@ -116,7 +122,7 @@ void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) 
     }
     if (elemento->ppid == pid) {
         if (elemento->next != 0) {
-            rmallrecchild(ilist, elemento->next,elemento->pid, elemento); // cerco e chiudo i filgi
+            rmallrecchild(ilist, elemento->next,elemento->pid, elemento); // cerco e chiudo i figli
             if (elemento->next != 0) {
                 rmallrecchild(ilist, elemento->next, pid, elemento); // cerco e chiudo i fratelli
             }
