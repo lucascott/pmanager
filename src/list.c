@@ -163,7 +163,7 @@ void printlist(List ilist) {
 pid_t getPidbyName (List *ilist, char *name) {
     Listitem *ptr;
     pid_t found = -1;
-    if (!ilist->head) return -1;    //non trovato
+    if (!ilist->head) return -1;    // non trovato
     ptr = ilist->head;
     if(strcmp(ptr->pname, name) == 0) {
         found = ptr->pid;
@@ -186,7 +186,7 @@ void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
         *pid = -1;
         *ppid = -1;
         return;
-    } //non trovato
+    } // non trovato
     ptr = ilist->head;
     if(ptr->pid == res) {
         *pid = ptr->pid;
