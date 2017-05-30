@@ -48,9 +48,19 @@ void getDate(char *data) { // salva la data e l'ora su data
 }
 
 void print_list() { // stampa la lista processi
-    printf("\t    %d processi figli attivi\n", numActive(&processi)); // stampa numero processi attivi
-    printf("PID\t NAME           \t PPID \tCREATED\n=======================================================\n");
-    printlist(processi); // invoca la funzione che stampa la lista
+    char num_active[50];
+    int num_act = 0;
+    num_act = numActive(&processi, num_active);
+    if (num_act == 0) {
+        printf("Nessun processo in lista.\n");
+    }
+    else {
+        printf(ANSI_COLOR_INV"\n            %s processi figli attivi                   \n"ANSI_COLOR_RESET, num_active); // stampa numero processi attivi
+        printf(ANSI_COLOR_INV" PID      NAME                    PPID    CREATED       \n"ANSI_COLOR_RESET);
+        printf("════════════════════════════════════════════════════════\n");
+        printlist(processi); // invoca la funzione che stampa la lista
+        printf("\n");
+    }
 }
 
 void tokenize(char * line, char ** tokens, int *argc) { // divide la stringa in singole parole
@@ -248,7 +258,7 @@ void tree_process() { // stampa albero processi
         printf("\nNessun processo attivo.\n\n");
     }
     else {
-        printf("\nAlbero processi:\n");
+        printf(ANSI_COLOR_INV"\n Albero processi figli: \n"ANSI_COLOR_RESET);
         treerecchild(processi.head, getpid(),0,0); // chiamata funzione stampa albero processi
         printf("\n");
     }
@@ -322,8 +332,8 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { // interpreta ed esegue i 
         }
         else if (strcmp(words[0],"quit") == 0) { // esecuzione comando "quit"
             if (arg_counter == 1) { // controllo numero argomenti
-                printf("Chiudo processi aperti e termino pmanager...\n");
                 killAll(&processi); // chiudo tutti i processi aperti rimanenti
+                printf("Tutti processi chiusi con successo. Termino pmanager.\n\n");
                 exit(0); // termino il programma
             }
             else {

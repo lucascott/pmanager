@@ -131,6 +131,7 @@ void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) 
 void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) { // stampo ricorsivamente l'albero con indentazione
     if (elemento->ppid == pid)
     {
+        printf(" ");
         int i;
         for(i=0; i < p; i++) {
             if (i == p-1) printf("└── ");
@@ -138,7 +139,7 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) { // stampo r
         }
         printf("%s\n", elemento->pname);
         if (elemento->next != 0) {
-            treerecchild(elemento->next,elemento->pid, p+1,p); // chiamo sul livello più profondo
+            treerecchild(elemento->next,elemento->pid, p+1,p); // chiamo sui figli
             treerecchild(elemento->next, pid, p,p); // chiamo su fratelli
         }
     }
@@ -149,13 +150,16 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) { // stampo r
 
 void printlist(List ilist) { // stampa la lista di processi
     Listitem *ptr;
-    if (!ilist.head) return;
+    if (!ilist.head){
+        printf("Nessun processo attivo.\n" );
+        return;
+    }
     ptr = ilist.head;
     while (ptr->next != 0) {
-        printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
+        printf(" %d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
         ptr = ptr->next;
     }
-    printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
+    printf(" %d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
 }
 
 pid_t getPidbyName (List *ilist, char *name) { // ritorna il PID del processo <name>
@@ -319,10 +323,13 @@ pid_t change_item_name (List *ilist, char *name, char * newname) { //cambia il <
     return -1;
 }
 
-int numActive(List *ilist) { // restituscisce il numero di processi attivi nel momento in cui chiamo la funzione
+int numActive(List *ilist, char *str) { // restituscisce il numero di processi attivi e in <str> la stringa formattata
     Listitem *ptr;
     int count = 0;
-    if (!ilist->head) return 0;
+    if (!ilist->head){
+        strcpy(str, "  0");
+        return 0;
+    }
     ptr = ilist->head;
     if (strcmp((ptr->pname), "XXX") != 0) {
         count++;
@@ -333,5 +340,11 @@ int numActive(List *ilist) { // restituscisce il numero di processi attivi nel m
             count++;
         }
     }
+    if (count > 99)
+        sprintf(str,"%d",count);
+    else if (count > 9)
+        sprintf(str," %d",count);
+    else
+        sprintf(str,"  %d",count);
     return count;
 }

@@ -4,6 +4,7 @@
 #include <sys/types.h>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_INV     "\x1b[30;47m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 struct listitem {
@@ -36,6 +37,6 @@ int killAll(List *ilist); // killa i processi e dealloco l'intera lista
 int myIsDigit(char *str); // controlla se un input è un numero
 int checkDuplicates(List *ilist, char *name, char *flag); // gestisce l'omonimia dei processi
 pid_t change_item_name (List *ilist, char *name, char * newname); //cambia il <name> del proceso in <newname> (XXX)
-int numActive(List *ilist); // restituscisce il numero di processi attivi nel momento in cui chiamo la funzione
+int numActive(List *ilist, char *str); // restituscisce il numero di processi attivi e in <str> la stringa formattata
 
 #endif  /* _LIST_H */
