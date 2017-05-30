@@ -28,7 +28,6 @@ void getDate(char *data); // salva la data e l'ora su data
 void print_list(); // stampa la lista processi
 void tokenize(char * line, char ** tokens, int *argc); // divide la stringa in singole parole
 void getMyPid(char * mystrpid); // salva in mystrpid il PID del processo che invoca la funzione
-int alphanumeric(char * str); // controlla che la stringa str sia alfanumerica
 void handler (int signo); // handler SIGUSR1
 void new_process(char *nome); // crea un nuovo processo chiamato "nome"
 void info_process(char *nome); // stampa informazioni sul processo "nome"

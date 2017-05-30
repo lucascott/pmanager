@@ -75,7 +75,7 @@ int main(int n_par, char *argv[]) {
         }
     }
     else {
-        printf("PMANAGER: \n");
+    printf("    ____                                                 \n   / __ \\____ ___  ____ _____  ____ _____ ____  _____    \n  / /_/ / __ `__ \\/ __ `/ __ \\/ __ `/ __ `/ _ \\/ ___/    \n / ____/ / / / / / /_/ / / / / /_/ / /_/ /  __/ /        \n/_/   /_/ /_/ /_/\\__,_/_/ /_/\\__,_/\\__, /\\___/_/  v1.3\n                                  /____/             \n\n");
         while (1) {
             fflush(stdout); //libero il buffer stdout
             printf("\r$> ");

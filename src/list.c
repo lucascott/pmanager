@@ -7,27 +7,13 @@
 #include "list.h"
 #include "intlist.h"
 
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
 
-void initlist(List *ilist) {
+void initlist(List *ilist) { // inizializza la lista
     ilist->head = 0;
     ilist->tail = 0;
 }
 
-void insertfront(List *ilist, pid_t pid, char *name, pid_t ppid) {
-    Listitem *newitem;
-    newitem = (Listitem *)malloc(sizeof(Listitem));
-    newitem->next = ilist->head;
-    strncpy((newitem->pname), name, 50);
-    newitem->pname[50] = '\0';
-    newitem->pid = pid;
-    newitem->ppid = ppid;
-    ilist->head = newitem;
-    if (ilist->tail == 0) ilist->tail = ilist->head;
-}
-
-void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
+void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) { // inserisce item in coda
     Listitem *newitem;
     newitem = (Listitem *)malloc(sizeof(Listitem));
     strncpy((newitem->pname), name, sizeof(newitem->pname));
@@ -46,7 +32,7 @@ void insertback(List *ilist, pid_t pid, char *name, pid_t ppid, char *data) {
     }
 }
 
-int length(List ilist) {      /* returns list length */
+int length(List ilist) { // ritorna la lunghezza della lista
     Listitem *ptr;
     int count = 1;
     if (!ilist.head) return 0;
@@ -58,7 +44,7 @@ int length(List ilist) {      /* returns list length */
     return count;
 }
 
-void destroy(List *ilist) {
+void destroy(List *ilist) { // cancella la lista
     Listitem *ptr1,*ptr2;
     if (!ilist->head) return;
     ptr1 = ilist->head;
@@ -71,12 +57,12 @@ void destroy(List *ilist) {
     ilist->tail = 0;
 }
 
-int rmallrec(List *ilist, char *name) {
+int rmallrec(List *ilist, char *name) { //elimina processo <name> e lancia la rimozione sui figli
     if (!ilist->head) return -1;
     int pid = checkDuplicates(ilist, name, "terminare a cascata");
     printf("Chiusura %s (pid: %d)\n",name, pid );
     Listitem * ptr = ilist->head;
-    if(ptr->pid == pid && ptr->next == 0) { // elemento unico in testa
+    if(ptr->pid == pid && ptr->next == 0) { // unico elemento nella lista
         ilist->head = 0;
         ilist->tail = 0;
         kill(pid, SIGTERM);
@@ -115,7 +101,7 @@ int rmallrec(List *ilist, char *name) {
     return 0;
 }
 
-void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) {
+void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) { // rimuove ricorsivamente i processi figli di <elemento>
     while(elemento->next != 0 && elemento->ppid != pid) {
         prec = elemento;
         elemento = elemento->next;
@@ -142,7 +128,7 @@ void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) 
     }       
 }
 
-void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) {
+void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) { // stampo ricorsivamente l'albero con indentazione
     if (elemento->ppid == pid)
     {
         int i;
@@ -152,8 +138,8 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) {
         }
         printf("%s\n", elemento->pname);
         if (elemento->next != 0) {
-            treerecchild(elemento->next,elemento->pid, p+1,p); // cerco e killo i figli
-            treerecchild(elemento->next, pid, p,p);
+            treerecchild(elemento->next,elemento->pid, p+1,p); // chiamo sul livello più profondo
+            treerecchild(elemento->next, pid, p,p); // chiamo su fratelli
         }
     }
     else if (elemento->next != 0) {
@@ -161,7 +147,7 @@ void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) {
     }
 }
 
-void printlist(List ilist) {
+void printlist(List ilist) { // stampa la lista di processi
     Listitem *ptr;
     if (!ilist.head) return;
     ptr = ilist.head;
@@ -172,7 +158,7 @@ void printlist(List ilist) {
     printf("%d\t %-15s\t %d\t %s\n",ptr->pid,ptr->pname, ptr->ppid, ptr->pdate);
 }
 
-pid_t getPidbyName (List *ilist, char *name) {
+pid_t getPidbyName (List *ilist, char *name) { // ritorna il PID del processo <name>
     Listitem *ptr;
     pid_t found = -1;
     if (!ilist->head) return -1;    // non trovato
@@ -191,23 +177,23 @@ pid_t getPidbyName (List *ilist, char *name) {
     return -1;
 }
 
-void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
+void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) { // ritorna informazioni sul processo <name>
     int res = checkDuplicates(ilist, name, "visualizzare");
     Listitem *ptr;
-    if (!ilist->head) {
+    if (!ilist->head) { // lista vuota
         *pid = -1;
         *ppid = -1;
         return;
-    } // non trovato
+    }
     ptr = ilist->head;
-    if(ptr->pid == res) {
+    if(ptr->pid == res) { // trovato in testa
         *pid = ptr->pid;
         *ppid = ptr->ppid;
         strcpy(data, ptr->pdate);
         return;
     }
-    while (ptr->next != 0) {
-        if((ptr->next)->pid == res) {
+    while (ptr->next != 0) { // scorro la lista
+        if((ptr->next)->pid == res) { // trovato
             *pid = (ptr->next)->pid;
             *ppid = (ptr->next)->ppid;
             strcpy(data, (ptr->next)->pdate);
@@ -215,12 +201,12 @@ void getInfos (List *ilist, char *name, pid_t *pid, pid_t *ppid, char *data) {
         }
         ptr = ptr -> next;
     }
-    *pid = -1;
+    *pid = -1; // processo non  trovato, ritorno -1 su pid e ppid
     *ppid = -1;
     return;
 }
 
-int killAll(List *ilist) {
+int killAll(List *ilist) { // killa i processi e dealloco l'intera lista
     Listitem *ptr;
     Listitem *tmp;
     if (!ilist->head) return -1;
@@ -235,10 +221,11 @@ int killAll(List *ilist) {
         kill(ptr->pid, SIGTERM);
     }
     free (ptr);
+    free (ilist);
     return 1;
 }
 
-int myIsDigit(char *str) {
+int myIsDigit(char *str) { // controlla se un input è un numero
     int i;
     int len = strlen(str);
     if (atoi(str)) {
@@ -253,7 +240,7 @@ int myIsDigit(char *str) {
     return 1;
 }
 
-int checkDuplicates(List *ilist, char *name, char *flag) {
+int checkDuplicates(List *ilist, char *name, char *flag) { // gestisce l'omonimia dei processi
     Listitem *ptr;
     int t;
     intList temp;
@@ -309,7 +296,7 @@ int checkDuplicates(List *ilist, char *name, char *flag) {
     return ref;
 }
 
-pid_t change_item_name (List *ilist, char *name, char * newname) {
+pid_t change_item_name (List *ilist, char *name, char * newname) { //cambia il <name> del proceso in <newname> (XXX)
     Listitem *ptr;
     pid_t found;
     int ref = checkDuplicates(ilist, name, "terminare");
@@ -332,7 +319,7 @@ pid_t change_item_name (List *ilist, char *name, char * newname) {
     return -1;
 }
 
-int numActive(List *ilist) {
+int numActive(List *ilist) { // restituscisce il numero di processi attivi nel momento in cui chiamo la funzione
     Listitem *ptr;
     int count = 0;
     if (!ilist->head) return 0;

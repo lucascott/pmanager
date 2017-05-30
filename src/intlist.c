@@ -14,7 +14,7 @@ void intinsertback(intList *ilist, int val) {
    intListitem *ptr;
    intListitem *newitem;
    newitem = (intListitem *)malloc(sizeof(intListitem));
-   newitem->data = val;
+   newitem->pid = val;
    newitem->next = 0;
    if (!ilist->head) {
         ilist->head = newitem;
@@ -57,12 +57,12 @@ int intgetitem(intList *ilist, int n) {
    int count = 0;
    if (!ilist->head) return 0;
    ptr = ilist->head;
-   if (n==0) return ptr->data;
+   if (n==0) return ptr->pid;
    while (ptr->next) {
         ptr = ptr->next;
         count++;
         if (n == count)
-             return (ptr->data);
+             return (ptr->pid);
    }
    return 0;
 }
@@ -74,11 +74,11 @@ void intprintlist(intList *ilist) {
   if (!ilist->head) return;
   ptr = ilist->head;
   do {
-    n = ptr->data;
+    n = ptr->pid;
     printf("%d: pid %d\n", count, n);
     count++;
     ptr = ptr-> next;
   } while (ptr->next != 0);
-  n = ptr->data;
+  n = ptr->pid;
   printf("%d: pid %d\n", count, n);
 }

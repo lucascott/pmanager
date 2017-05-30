@@ -67,18 +67,6 @@ void getMyPid(char * mystrpid) { // salva in mystrpid il PID del processo che in
     sprintf(mystrpid,"%d",getpid());
 }
 
-int alphanumeric(char * str) { // controlla che la stringa str sia alfanumerica
-    int i = 0;
-    while(isalnum(str[i])) { // finchè trovo caratteri alfanumerici proseguo
-        i++;
-    }
-    if(i == (strlen(str))) // se ho scorso tutta la lista ritorno TRUE, altrimenti FALSE
-        return 1;
-    else
-        return 0;
-}
-
-
 void handler (int signo) {  // handler per SIGUSR1
     if (signo == SIGUSR1) { // se il segnale ricevuto è SIGUSR1
         int nbytes_n = read(fn[READ], readbuffer_n, sizeof(readbuffer_n)); // legge dalla pipe il nome del processo da clonare
@@ -286,10 +274,7 @@ void esegui(char *words[MAX_ARGS], int arg_counter) { // interpreta ed esegue i 
         }
         else if (strcmp(words[0],"pnew") == 0) { // esecuzione comando "pnew"
             if (arg_counter == 2) { // controllo numero argomenti
-                if (alphanumeric(words[1])) // controllo che il nome processo sia alfanumerico
                     new_process(words[1]);
-                else
-                    printf(ANSI_COLOR_RED"Il nome del processo deve essere alfanumerico\n"ANSI_COLOR_RESET);
             }
             else {
                 printf (ANSI_COLOR_RED"Comando errato. Uso corretto: pnew <nome>\n"ANSI_COLOR_RESET);
