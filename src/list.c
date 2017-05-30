@@ -125,7 +125,7 @@ void rmallrecchild( List *ilist, Listitem *elemento, pid_t pid, Listitem *prec) 
             ilist->tail = prec;
         }
         free(elemento); // dealloco coda
-    }       
+    }
 }
 
 void treerecchild(Listitem *elemento, pid_t pid, int p, int pprec) { // stampo ricorsivamente l'albero con indentazione
@@ -221,7 +221,7 @@ int killAll(List *ilist) { // killa i processi e dealloco l'intera lista
         kill(ptr->pid, SIGTERM);
     }
     free (ptr);
-    free (ilist);
+    destroy(ilist); // dealloca l'intera lista
     return 1;
 }
 
