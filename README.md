@@ -1,5 +1,7 @@
 # PROCESS MANAGER in C
 Custom shell which capable of handle multiple instances of the process and interact with them thrugh simple commands:
+
+| ------ | ------ |
 | pnew | create a new process called <name> |
 | pclose <name> | close the process with named <name> |
 | plist | display the list of all the processes |
